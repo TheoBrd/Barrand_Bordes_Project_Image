@@ -4,10 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -22,6 +25,10 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonLoad;
     private Button buttonCam;
     private Bitmap currentImage;
+    private Matrix matrix = new Matrix();
+    private Float scale = 1f;
+    private ScaleGestureDetector SGD;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +56,31 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        SGD = new ScaleGestureDetector(this, new ScaleLister());
+    }
+
+    private class ScaleLister extends ScaleGestureDetector.SimpleOnScaleGestureListener{
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            scale = scale*detector.getScaleFactor();
+            scale = Math.max(0.1f, Math.min(scale, 5f));
+            matrix.setScale(scale,scale);
+            imgView.setImageMatrix(matrix);
+            return true;
+        }
     }
 
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        SGD.onTouchEvent(event);
+        return  true;
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
 
         if(requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK){
             Uri imageUri = data.getData();
