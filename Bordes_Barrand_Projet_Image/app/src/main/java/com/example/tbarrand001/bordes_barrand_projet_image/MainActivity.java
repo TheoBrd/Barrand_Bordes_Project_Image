@@ -12,6 +12,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.graphics.PointF;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -22,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonLoad;
     private Button buttonCam;
     private Bitmap currentImage;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
