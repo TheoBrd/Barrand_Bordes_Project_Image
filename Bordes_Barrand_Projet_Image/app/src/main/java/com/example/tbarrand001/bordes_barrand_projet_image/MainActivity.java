@@ -25,12 +25,14 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Touch";
 
-    private ImageView imgView;
     private static int RESULT_LOAD_IMAGE = 1;
     private static final int CAMERA_REQUEST = 1888;
     private Button buttonLoad;
     private Button buttonCam;
-    private Bitmap currentImage;
+
+    private int value;
+    private FilteredImage flImg;
+
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
     static final int NONE = 0;
@@ -46,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        imgView = (ImageView) findViewById(R.id.imageView);
+        flImg = new FilteredImage((ImageView) findViewById(R.id.imageView));
+
         buttonLoad = (Button) findViewById(R.id.button);
         buttonLoad.setOnClickListener(new View.OnClickListener() {
 
@@ -68,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        imgView.setOnTouchListener(new View.OnTouchListener(){
+        flImg.getImageView().setOnTouchListener(new View.OnTouchListener(){
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -176,15 +179,15 @@ public class MainActivity extends AppCompatActivity {
 
         if(requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK){
             Uri imageUri = data.getData();
-            imgView.setImageURI(imageUri);
-            currentImage = ((BitmapDrawable)imgView.getDrawable()).getBitmap();
+            flImg.getImageView().setImageURI(imageUri);
+            flImg.setBitmapFromImageView();
 
         }
 
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             Bitmap photo = (Bitmap) data.getExtras().get("data");
-            imgView.setImageBitmap(photo);
-            currentImage = ((BitmapDrawable)imgView.getDrawable()).getBitmap();
+            flImg.getImageView().setImageBitmap(photo);
+            flImg.setBitmapFromImageView();
         }
     }
 
