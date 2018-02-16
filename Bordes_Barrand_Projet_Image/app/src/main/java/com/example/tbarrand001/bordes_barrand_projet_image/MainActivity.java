@@ -5,12 +5,13 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -21,23 +22,24 @@ import android.view.View.OnTouchListener;
 import android.util.Log;
 import android.graphics.PointF;
 
+import static android.R.attr.start;
+
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageView imgView;
+    private static final String TAG = "Touch";
+
     private static int RESULT_LOAD_IMAGE = 1;
     private static final int CAMERA_REQUEST = 1888;
     private Button buttonLoad;
     private Button buttonCam;
-    private Bitmap currentImage;
 
-    private Drawable drawable;
-    private String ImagePath;
-    Uri URI;
+
+    private int value;
+    private FilteredImage flImg;
 
     private Matrix matrix = new Matrix();
-    private Float scale = 1f;
-    private ScaleGestureDetector SGD;
+    private Matrix savedMatrix = new Matrix();
     static final int NONE = 0;
     static final int DRAG = 1;
     static final int ZOOM = 2;
@@ -45,20 +47,14 @@ public class MainActivity extends AppCompatActivity {
     PointF start = new PointF();
     PointF mid = new PointF();
     float oldDist = 1f;
-    private static final String TAG = "Touch";
-    @SuppressWarnings("unused")
-    private static final float MIN_ZOOM = 1f,MAX_ZOOM = 1f;
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        imgView = (ImageView) findViewById(R.id.imageView);
 
-        drawable = getResources().getDrawable(R.drawable.demo_image);
-        currentImage = ((BitmapDrawable)drawable).getBitmap();
+        flImg = new FilteredImage((ImageView) findViewById(R.id.imageView));
 
         buttonLoad = (Button) findViewById(R.id.button);
         buttonLoad.setOnClickListener(new View.OnClickListener() {
@@ -81,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        imgView.setOnTouchListener(new View.OnTouchListener() {
+        flImg.getImageView().setOnTouchListener(new View.OnTouchListener(){
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -89,18 +85,16 @@ public class MainActivity extends AppCompatActivity {
                 view.setScaleType(ImageView.ScaleType.MATRIX);
                 float scale;
 
-                //dumpEvent(event);
-                // Handle touch events here...
-
                 switch (event.getAction() & MotionEvent.ACTION_MASK)
                 {
                     case MotionEvent.ACTION_DOWN:   // first finger down only
-                        matrix.set(matrix);
+                        savedMatrix.set(matrix);
                         start.set(event.getX(), event.getY());
                         Log.d(TAG, "mode=DRAG"); // write to LogCat
                         mode = DRAG;
                         break;
 
+                    case MotionEvent.ACTION_UP: // first finger lifted
 
                     case MotionEvent.ACTION_POINTER_UP: // second finger lifted
 
@@ -113,7 +107,8 @@ public class MainActivity extends AppCompatActivity {
                         oldDist = spacing(event);
                         Log.d(TAG, "oldDist=" + oldDist);
                         if (oldDist > 5f) {
-                            matrix.set(matrix);
+
+                            savedMatrix.set(matrix);
                             midPoint(mid, event);
                             mode = ZOOM;
                             Log.d(TAG, "mode=ZOOM");
@@ -124,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
                         if (mode == DRAG)
                         {
-                            matrix.set(matrix);
+                            matrix.set(savedMatrix);
                             matrix.postTranslate(event.getX() - start.x, event.getY() - start.y); // create the transformation in the matrix  of points
                         }
                         else if (mode == ZOOM)
@@ -134,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "newDist=" + newDist);
                             if (newDist > 5f)
                             {
-                                matrix.set(matrix);
+                                matrix.set(savedMatrix);
                                 scale = newDist / oldDist; // setting the scaling of the
                                 // matrix...if scale > 1 means
                                 // zoom in...if scale < 1 means
@@ -150,6 +145,14 @@ public class MainActivity extends AppCompatActivity {
                 return true; // indicate event was handled
             }
 
+
+            /*
+             * --------------------------------------------------------------------------
+             * Method: spacing Parameters: MotionEvent Returns: float Description:
+             * checks the spacing between the two fingers on touch
+             * ----------------------------------------------------
+             */
+
             private float spacing(MotionEvent event)
             {
                 float x = event.getX(0) - event.getX(1);
@@ -157,24 +160,24 @@ public class MainActivity extends AppCompatActivity {
                 return (float) Math.sqrt(x * x + y * y);
             }
 
+            /*
+             * --------------------------------------------------------------------------
+             * Method: midPoint Parameters: PointF object, MotionEvent Returns: void
+             * Description: calculates the midpoint between the two fingers
+             * ------------------------------------------------------------
+             */
+
             private void midPoint(PointF point, MotionEvent event)
             {
                 float x = event.getX(0) + event.getX(1);
                 float y = event.getY(0) + event.getY(1);
                 point.set(x / 2, y / 2);
             }
-
-
         });
 
-        //SGD = new ScaleGestureDetector(this, new ScaleLister());
     }
 
-  /*  @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        SGD.onTouchEvent(event);
-        return  true;
-    }*/
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -183,15 +186,15 @@ public class MainActivity extends AppCompatActivity {
 
         if(requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK){
             Uri imageUri = data.getData();
-            imgView.setImageURI(imageUri);
-            currentImage = ((BitmapDrawable)imgView.getDrawable()).getBitmap();
+            flImg.getImageView().setImageURI(imageUri);
+            flImg.setBitmapFromImageView();
 
         }
 
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             Bitmap photo = (Bitmap) data.getExtras().get("data");
-            imgView.setImageBitmap(photo);
-            currentImage = ((BitmapDrawable)imgView.getDrawable()).getBitmap();
+            flImg.getImageView().setImageBitmap(photo);
+            flImg.setBitmapFromImageView();
         }
     }
 
