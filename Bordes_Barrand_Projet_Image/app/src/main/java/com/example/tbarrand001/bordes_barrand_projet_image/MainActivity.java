@@ -6,9 +6,11 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -28,6 +30,11 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonLoad;
     private Button buttonCam;
     private Bitmap currentImage;
+
+    private Drawable drawable;
+    private String ImagePath;
+    Uri URI;
+
     private Matrix matrix = new Matrix();
     private Float scale = 1f;
     private ScaleGestureDetector SGD;
@@ -49,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         imgView = (ImageView) findViewById(R.id.imageView);
+
+        drawable = getResources().getDrawable(R.drawable.demo_image);
+        currentImage = ((BitmapDrawable)drawable).getBitmap();
+
         buttonLoad = (Button) findViewById(R.id.button);
         buttonLoad.setOnClickListener(new View.OnClickListener() {
 
@@ -159,56 +170,11 @@ public class MainActivity extends AppCompatActivity {
         //SGD = new ScaleGestureDetector(this, new ScaleLister());
     }
 
-
-
-    /*private void dumpEvent(MotionEvent event)
-    {
-        String names[] = { "DOWN", "UP", "MOVE", "CANCEL", "OUTSIDE","POINTER_DOWN", "POINTER_UP", "7?", "8?", "9?" };
-        StringBuilder sb = new StringBuilder();
-        int action = event.getAction();
-        int actionCode = action & MotionEvent.ACTION_MASK;
-        sb.append("event ACTION_").append(names[actionCode]);
-
-        if (actionCode == MotionEvent.ACTION_POINTER_DOWN || actionCode == MotionEvent.ACTION_POINTER_UP)
-        {
-            sb.append("(pid ").append(action >> MotionEvent.ACTION_POINTER_ID_SHIFT);
-            sb.append(")");
-        }
-
-        sb.append("[");
-        for (int i = 0; i < event.getPointerCount(); i++)
-        {
-            sb.append("#").append(i);
-            sb.append("(pid ").append(event.getPointerId(i));
-            sb.append(")=").append((int) event.getX(i));
-            sb.append(",").append((int) event.getY(i));
-            if (i + 1 < event.getPointerCount())
-                sb.append(";");
-        }
-
-        sb.append("]");
-        Log.d("Touch Events ---------", sb.toString());
-    }*/
-
-
-
-    /*private class ScaleLister extends ScaleGestureDetector.SimpleOnScaleGestureListener{
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            scale = scale*detector.getScaleFactor();
-            scale = Math.max(0.1f, Math.min(scale, 5f));
-            matrix.setScale(scale,scale);
-            imgView.setImageMatrix(matrix);
-            return true;
-        }
-    }
-
-*/
-    @Override
+  /*  @Override
     public boolean onTouchEvent(MotionEvent event) {
         SGD.onTouchEvent(event);
         return  true;
-    }
+    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
