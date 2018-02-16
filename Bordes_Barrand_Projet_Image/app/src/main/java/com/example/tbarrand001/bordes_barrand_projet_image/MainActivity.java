@@ -1,24 +1,25 @@
 package com.example.tbarrand001.bordes_barrand_projet_image;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import static android.R.attr.start;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -27,10 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static int RESULT_LOAD_IMAGE = 1;
     private static final int CAMERA_REQUEST = 1888;
-    private Button buttonLoad;
-    private Button buttonCam;
 
     private int value;
+    private SeekBar skb;
     private FilteredImage flImg;
 
     private Matrix matrix = new Matrix();
@@ -45,32 +45,40 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        flImg = new FilteredImage((ImageView) findViewById(R.id.imageView));
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
 
-        buttonLoad = (Button) findViewById(R.id.button);
-        buttonLoad.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View view) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+
+            case R.id.gallery :
                 Intent gallery = new Intent(Intent.ACTION_GET_CONTENT);
                 gallery.setType("image/*");
                 startActivityForResult(gallery, RESULT_LOAD_IMAGE);
-            }
-        });
+                return true;
 
-        buttonCam= (Button) this.findViewById(R.id.button2);
-        buttonCam.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
+            case R.id.camera:
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(cameraIntent, CAMERA_REQUEST);
-            }
-        });
+                return true;
 
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        getSupportActionBar().setTitle("New App");
+
+        flImg = new FilteredImage((ImageView) findViewById(R.id.imageView));
         flImg.getImageView().setOnTouchListener(new View.OnTouchListener(){
 
             @Override
@@ -164,6 +172,41 @@ public class MainActivity extends AppCompatActivity {
                 float x = event.getX(0) + event.getX(1);
                 float y = event.getY(0) + event.getY(1);
                 point.set(x / 2, y / 2);
+            }
+        });
+
+        skb = (SeekBar) findViewById(R.id.seekBar);
+        final TextView valuePrint = (TextView) findViewById(R.id.seekbarValue);
+        valuePrint.setText(String.valueOf(skb.getProgress()));
+
+        skb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                value = i;
+                valuePrint.setText(String.valueOf(i));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        final Button hide = (Button) findViewById(R.id.buttonVisi);
+        hide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(skb.getVisibility()==View.VISIBLE){
+                    hide.setText("V");
+                    skb.setVisibility(View.GONE);
+                }else{
+                    hide.setText("X");
+                    skb.setVisibility(View.VISIBLE);
+                }
             }
         });
 
