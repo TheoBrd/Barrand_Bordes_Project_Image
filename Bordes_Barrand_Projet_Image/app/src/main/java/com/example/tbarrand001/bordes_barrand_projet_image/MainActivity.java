@@ -35,13 +35,13 @@ public class MainActivity extends AppCompatActivity {
 
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
-    static final int NONE = 0;
-    static final int DRAG = 1;
-    static final int ZOOM = 2;
-    int mode = NONE;
-    PointF start = new PointF();
-    PointF mid = new PointF();
-    float oldDist = 1f;
+    private static final int NONE = 0;
+    private static final int DRAG = 1;
+    private static final int ZOOM = 2;
+    private int mode = NONE;
+    private PointF start = new PointF();
+    private PointF mid = new PointF();
+    private float oldDist = 1f;
 
 
     @Override
@@ -55,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
 
+            case R.id.reset:
+                flImg.reload();
+                return true;
+
             case R.id.gallery :
                 Intent gallery = new Intent(Intent.ACTION_GET_CONTENT);
                 gallery.setType("image/*");
@@ -64,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.camera:
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                return true;
+
+            case R.id.save:
                 return true;
 
         }
@@ -207,6 +214,17 @@ public class MainActivity extends AppCompatActivity {
                     hide.setText("X");
                     skb.setVisibility(View.VISIBLE);
                 }
+            }
+        });
+
+        Button sobelBut = (Button) findViewById(R.id.sobel);
+        sobelBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                flImg.setBitmapFromImageView();
+                flImg.sobelConvolution();
+                flImg.setImageViewFromBitmap();
+
             }
         });
 

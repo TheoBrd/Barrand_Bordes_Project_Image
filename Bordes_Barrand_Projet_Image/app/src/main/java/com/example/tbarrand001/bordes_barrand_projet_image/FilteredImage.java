@@ -23,14 +23,14 @@ public class FilteredImage {
     private ImageView imageView;
     private ImageView restartImg;
     private Bitmap bmp;
-    private int wight;
+    private int width;
     private int height;
 
     FilteredImage(ImageView imgV){
         this.imageView = imgV;
         this.restartImg = imgV;
         this.bmp = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
-        this.wight = this.bmp.getWidth();
+        this.width = this.bmp.getWidth();
         this.height = this.bmp.getHeight();
     }
 
@@ -51,12 +51,12 @@ public class FilteredImage {
         this.bmp = bmp;
     }
 
-    public int getWight() {
-        return wight;
+    public int getWidth() {
+        return width;
     }
 
-    public void setWight(int wight) {
-        this.wight = wight;
+    public void setWidth(int width) {
+        this.width = width;
     }
 
     public int getHeight() {
@@ -75,6 +75,10 @@ public class FilteredImage {
        this.bmp = ((BitmapDrawable)this.imageView.getDrawable()).getBitmap();
     }
 
+    public void setImageViewFromBitmap(){
+        this.imageView.setImageBitmap(this.bmp);
+    }
+
     private int[] histogram(int [] bmp){
         int[] histo = new int[256];
         for(int i=0; i<256; i++){
@@ -87,9 +91,9 @@ public class FilteredImage {
     }
 
     public void equalisationColor(){
-        int[] pixelMap = new int[this.wight*this.height];
-        this.bmp.getPixels(pixelMap, 0, this.wight, 0,0, this.wight, this.height);
-        int[] pixelMapGrey =new int[this.wight*this.height];
+        int[] pixelMap = new int[this.width *this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        int[] pixelMapGrey =new int[this.width *this.height];
 
         for (int p=0; p< pixelMap.length; p++){
             int r = red(pixelMap[p]);
@@ -119,13 +123,13 @@ public class FilteredImage {
             pixelMap[p] = Color.rgb(r,g,b);
         }
 
-        this.bmp.setPixels(pixelMap, 0, this.wight, 0,0, this.wight, this.height);
+        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
 
     }
 
     public void colorize (){
-        int[] pixelMap = new int[this.wight*this.wight];
-        this.bmp.getPixels(pixelMap, 0, this.wight, 0,0, this.wight, this.height);
+        int[] pixelMap = new int[this.width *this.width];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
         float[] hsv = new float[3];
         Random rand = new Random();
         int hue =rand.nextInt(361);
@@ -138,7 +142,7 @@ public class FilteredImage {
             hsv[0] = hue;
             pixelMap[p]=HSVToColor(hsv);
         }
-        bmp.setPixels(pixelMap, 0, this.wight, 0,0, this.wight, this.height);
+        bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
     }
 
     public double[] convolution(int n, float[][] masque, int[] pixelMap, int p){
@@ -147,7 +151,7 @@ public class FilteredImage {
         red=green=blue=0;
         for(int u=-n; u<=n; u++){
             for(int v=-n; v<=n; v++){
-                int indices = p+u+(this.wight*v);
+                int indices = p+u+(this.width *v);
                 red+= red(pixelMap[indices])*(double)(masque[u+n][v+n]);
                 green+= green(pixelMap[indices])*(double)(masque[u+n][v+n]);
                 blue+= blue(pixelMap[indices])*(double)(masque[u+n][v+n]);
@@ -160,9 +164,9 @@ public class FilteredImage {
 
     public void averageConvolution(int n){
         int size = 2*n+1;
-        int[] pixelMap = new int[this.wight*this.height];
-        int[] finalPixelMap = new int[this.wight*this.height];
-        this.bmp.getPixels(pixelMap, 0, this.wight, 0,0, this.wight, this.height);
+        int[] pixelMap = new int[this.width *this.height];
+        int[] finalPixelMap = new int[this.width *this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
 
         for(int s =0; s< finalPixelMap.length; s++){
             finalPixelMap[s]=Color.rgb(0,0,0);
@@ -177,21 +181,21 @@ public class FilteredImage {
 
         for(int p =0 ; p<pixelMap.length; p++){
 
-            if(p>n*this.wight && p<((this.wight*this.height)-n*this.wight) && (p%this.wight)>(n-1) && (p%this.wight)<(this.wight-n)){
+            if(p>n*this.width && p<((this.width *this.height)-n*this.width) && (p%this.width)>(n-1) && (p%this.width)<(this.width -n)){
 
                 double[] RGB = convolution(n,masque,pixelMap,p);
                 finalPixelMap[p] = Color.rgb((int)RGB[0], (int)RGB[1],(int)RGB[2]);
             }
         }
 
-        this.bmp.setPixels(finalPixelMap, 0, this.wight, 0,0, this.wight, this.height);
+        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
 
     }
 
     public void sobelConvolution( ){
-        int[] pixelMap = new int[this.wight*this.height];
-        int[] finalPixelMap = new int[this.wight*this.height];
-        this.bmp.getPixels(pixelMap, 0, this.wight, 0,0, this.wight, this.height);
+        int[] pixelMap = new int[this.width *this.height];
+        int[] finalPixelMap = new int[this.width *this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
         double redT, greenT, blueT;
         int gray;
 
@@ -211,7 +215,7 @@ public class FilteredImage {
 
         for(int p =0 ; p<pixelMap.length; p++){
 
-            if(p>this.wight && p<((this.wight*this.height)-this.wight) && (p%this.wight)>(0) && (p%this.wight)<(this.wight-1)){
+            if(p>this.width && p<((this.width *this.height)-this.width) && (p%this.width)>(0) && (p%this.width)<(this.width -1)){
 
                 double[] RGBX = convolution(1,masque1, pixelMap, p);
                 double[] RGBY = convolution(1,masque2, pixelMap, p);
@@ -236,15 +240,16 @@ public class FilteredImage {
                 finalPixelMap[p] = Color.rgb(0,0,0);
             }
         }
-
-        this.bmp.setPixels(finalPixelMap, 0, this.wight, 0,0, this.wight, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
     public void gaussien(int n){
         int size = 2*n+1;
-        int[] pixelMap = new int[this.wight*this.height];
-        int[] finalPixelMap = new int[this.wight*this.height];
-        this.bmp.getPixels(pixelMap, 0, this.wight, 0,0, this.wight, this.height);
+        int[] pixelMap = new int[this.width *this.height];
+        int[] finalPixelMap = new int[this.width *this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
 
         for(int s =0; s< finalPixelMap.length; s++){
             finalPixelMap[s]=Color.rgb(0,0,0);
@@ -263,13 +268,13 @@ public class FilteredImage {
 
         for(int p =0 ; p<pixelMap.length; p++){
 
-            if(p>n*this.wight && p<((this.wight*this.height)-n*this.wight) && (p%this.wight)>(n-1) && (p%this.wight)<(this.wight-n)){
+            if(p>n*this.width && p<((this.width *this.height)-n*this.width) && (p%this.width)>(n-1) && (p%this.width)<(this.width -n)){
 
                 double[] RGB = convolution(n,masque,pixelMap,p);
                 finalPixelMap[p] = Color.rgb((int)(RGB[0]/sum), (int)(RGB[1]/sum),(int)(RGB[2]/sum));
             }
         }
-        this.bmp.setPixels(finalPixelMap, 0, this.wight, 0,0, this.wight, this.height);
+        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
 
     }
 
