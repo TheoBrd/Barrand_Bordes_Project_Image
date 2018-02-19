@@ -8,6 +8,8 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.net.Uri;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -184,7 +186,8 @@ public class MainActivity extends AppCompatActivity {
 
         skb = (SeekBar) findViewById(R.id.seekBar);
         final TextView valuePrint = (TextView) findViewById(R.id.seekbarValue);
-        valuePrint.setText(String.valueOf(skb.getProgress()));
+        this.value = skb.getProgress();
+        valuePrint.setText(String.valueOf(this.value));
 
         skb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
@@ -203,28 +206,54 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        final Button hide = (Button) findViewById(R.id.buttonVisi);
-        hide.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(skb.getVisibility()==View.VISIBLE){
-                    hide.setText("V");
-                    skb.setVisibility(View.GONE);
-                }else{
-                    hide.setText("X");
-                    skb.setVisibility(View.VISIBLE);
-                }
-            }
-        });
 
         Button sobelBut = (Button) findViewById(R.id.sobel);
         sobelBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                flImg.setBitmapFromImageView();
+                flImg.reload();
+                if(skb.getVisibility()==View.VISIBLE){
+                    skb.setVisibility(View.GONE);
+                }
                 flImg.sobelConvolution();
                 flImg.setImageViewFromBitmap();
 
+            }
+        });
+
+        Button convolBut = (Button) findViewById(R.id.convol);
+        convolBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flImg.reload();
+                if(skb.getVisibility()==View.GONE){
+                    skb.setVisibility(View.VISIBLE);
+                    skb.setProgress(1);
+                }
+                if(skb.getMax()!=10){
+                    skb.setProgress(1);
+                    skb.setMax(10);
+                }
+                flImg.averageConvolution(value);
+                flImg.setImageViewFromBitmap();
+            }
+        });
+
+        Button gaussienBut = (Button) findViewById(R.id.gauss);
+        gaussienBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flImg.reload();
+                if(skb.getVisibility()==View.GONE){
+                    skb.setVisibility(View.VISIBLE);
+                    skb.setProgress(1);
+                }
+                if(skb.getMax()!=10){
+                    skb.setProgress(1);
+                    skb.setMax(10);
+                }
+                flImg.gaussien(value);
+                flImg.setImageViewFromBitmap();
             }
         });
 

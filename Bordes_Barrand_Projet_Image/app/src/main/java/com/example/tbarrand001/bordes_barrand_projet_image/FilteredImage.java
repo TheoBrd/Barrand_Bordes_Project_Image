@@ -21,15 +21,15 @@ public class FilteredImage {
 
 
     private ImageView imageView;
-    private ImageView restartImg;
     private Bitmap bmp;
+    private Bitmap reset;
     private int width;
     private int height;
 
     FilteredImage(ImageView imgV){
         this.imageView = imgV;
-        this.restartImg = imgV;
         this.bmp = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+        this.reset = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
         this.width = this.bmp.getWidth();
         this.height = this.bmp.getHeight();
     }
@@ -68,11 +68,15 @@ public class FilteredImage {
     }
 
     public void reload(){
-        this.imageView = this.restartImg;
+        this.bmp = this.reset.copy(Bitmap.Config.ARGB_8888, true);
+        setImageViewFromBitmap();
     }
 
     public void setBitmapFromImageView(){
        this.bmp = ((BitmapDrawable)this.imageView.getDrawable()).getBitmap();
+       this.reset = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+       this.width = this.bmp.getWidth();
+       this.height = this.bmp.getHeight();
     }
 
     public void setImageViewFromBitmap(){
