@@ -2,13 +2,19 @@ package com.example.tbarrand001.bordes_barrand_projet_image;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,6 +28,10 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -73,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.save:
+                Bitmap bmp = flImg.getBmp();
+                saveImgToGallery(bmp, "imgName");
                 return true;
 
         }
@@ -290,6 +302,25 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
             Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void saveImgToGallery(Bitmap bm, String imgName) {
+        OutputStream fOut = null;
+        String strDirectory = Environment.getExternalStorageDirectory().toString();
+
+        File f = new File(strDirectory, imgName);
+
+        try {
+            fOut = new FileOutputStream(f);
+            /**Compress image**/
+            bm.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+            fOut.flush();
+            fOut.close();
+            /**Update image to gallery**/
+            MediaStore.Images.Media.insertImage(getContentResolver(), f.getAbsolutePath(), f.getName(), f.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
