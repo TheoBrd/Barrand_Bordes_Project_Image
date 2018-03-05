@@ -3,16 +3,21 @@ package com.example.tbarrand001.bordes_barrand_projet_image;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Environment;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.provider.MediaStore;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Button;
@@ -21,6 +26,14 @@ import android.widget.Toast;
 import android.view.View.OnTouchListener;
 import android.util.Log;
 import android.graphics.PointF;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static android.R.attr.start;
 
@@ -31,12 +44,19 @@ public class MainActivity extends AppCompatActivity {
 
     private static int RESULT_LOAD_IMAGE = 1;
     private static final int CAMERA_REQUEST = 1888;
+    private static final int REQUEST_TAKE_PHOTO = 1;
     private Button buttonLoad;
     private Button buttonCam;
+    private Button saveImage;
 
 
     private int value;
     private FilteredImage flImg;
+
+    private Drawable drawable;
+    private Bitmap bmp;
+    private String ImagePath;
+    private Uri URI;
 
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
@@ -62,8 +82,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent gallery = new Intent(Intent.ACTION_GET_CONTENT);
-                gallery.setType("image/*");
+                gallery.setType("image*//*");
                 startActivityForResult(gallery, RESULT_LOAD_IMAGE);
+
             }
         });
 
@@ -76,6 +97,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(cameraIntent, CAMERA_REQUEST);
             }
         });
+
+        /*saveImage = (Button)findViewById(R.id.button3);
+        saveImage.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                galleryAddPic();
+
+            }
+        });*/
 
         flImg.getImageView().setOnTouchListener(new View.OnTouchListener(){
 
@@ -188,7 +219,6 @@ public class MainActivity extends AppCompatActivity {
             Uri imageUri = data.getData();
             flImg.getImageView().setImageURI(imageUri);
             flImg.setBitmapFromImageView();
-
         }
 
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
@@ -196,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
             flImg.getImageView().setImageBitmap(photo);
             flImg.setBitmapFromImageView();
         }
+
     }
 
     @Override
@@ -209,5 +240,54 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
         }
     }
+
+    /*private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  *//* prefix *//*
+                ".jpg",         *//* suffix *//*
+                storageDir      *//* directory *//*
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        ImagePath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                System.out.println("Error while creating the File");
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.example.android.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
+        }
+    }
+
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(ImagePath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+    }
+*/
+
 
 }
