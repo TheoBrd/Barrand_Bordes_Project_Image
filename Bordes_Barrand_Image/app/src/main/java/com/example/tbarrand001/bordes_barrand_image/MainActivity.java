@@ -1,13 +1,17 @@
 package com.example.tbarrand001.bordes_barrand_image;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +34,8 @@ import java.io.OutputStream;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Touch";
+
+    private static final int PERMISSION_REQUEST_CODE = 1;
 
     /**The different channels**/
     private static int RESULT_LOAD_IMAGE = 1;
@@ -90,6 +96,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.save:
                 //create a intent, and next call an activity;
                 Bitmap bmp = flImg.getBmp();
+
+                if (checkPermission()) {
+                    Log.e("permission", "Permission already granted.");
+                } else {
+                    requestPermission();
+                }
                 saveImgToGallery(bmp, "imgName");
                 return true;
 
@@ -136,9 +148,10 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case MotionEvent.ACTION_UP: // first finger lifted
+                        mode = NONE;
+                        break;
 
                     case MotionEvent.ACTION_POINTER_UP: // second finger lifted
-
                         mode = NONE;
                         Log.d(TAG, "mode=NONE");
                         break;
@@ -503,9 +516,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private boolean checkPermission() {
+        int result = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
+                    Toast.makeText(MainActivity.this,
+                            "Permission accepted", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(MainActivity.this,
+                            "Permission denied", Toast.LENGTH_LONG).show();
+
+                }
+                break;
+        }
+    }
 
 
 }

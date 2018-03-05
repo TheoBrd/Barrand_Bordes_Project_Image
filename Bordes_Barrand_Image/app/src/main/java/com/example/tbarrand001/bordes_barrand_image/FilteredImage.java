@@ -83,7 +83,7 @@ public class FilteredImage {
      */
     public void toGray(){
 
-        int[] pixelMap = new int[this.width *this.width];
+        int[] pixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
 
         for (int p=0; p< pixelMap.length; p++){
@@ -96,7 +96,7 @@ public class FilteredImage {
 
 
         }
-        bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
     }
 
     /**
@@ -154,7 +154,7 @@ public class FilteredImage {
     }
 
     public void colorize (int valueC ){
-        int[] pixelMap = new int[this.width *this.width];
+        int[] pixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
 
         float[] hsv = new float[3];
@@ -167,7 +167,7 @@ public class FilteredImage {
             hsv[0] = valueC;
             pixelMap[p]=HSVToColor(hsv);
         }
-        bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
     }
 
     public double[] convolution(int n, float[][] masque, int[] pixelMap, int p){
@@ -458,7 +458,7 @@ public class FilteredImage {
             int valueMax = (valueC +20)%361;
             int valueMin = (valueC -20)%361;
 
-            if(hue[0]<=valueMin || hue[0]>=valueMax){
+            if(hue[0]<valueMin || hue[0]>valueMax){
                 int gray = (int) (0.3*r+0.59*g+0.11*b);
 
                 finalPixelMap[p] = Color.rgb( gray,gray,gray);

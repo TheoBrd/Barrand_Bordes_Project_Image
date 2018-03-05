@@ -8,7 +8,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 /**
- * Created by tbarrand001 on 05/03/18.
+ * Created by tbarrand001 & cbordes001 on 05/03/18.
  */
 
 public class PopUp extends Activity {
