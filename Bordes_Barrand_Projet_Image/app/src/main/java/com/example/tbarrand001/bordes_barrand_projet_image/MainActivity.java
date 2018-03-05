@@ -1,41 +1,37 @@
 package com.example.tbarrand001.bordes_barrand_projet_image;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
-import android.support.v4.content.FileProvider;
+import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.provider.MediaStore;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
-import android.view.View.OnTouchListener;
-import android.util.Log;
-import android.graphics.PointF;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import static android.R.attr.start;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -44,70 +40,66 @@ public class MainActivity extends AppCompatActivity {
 
     private static int RESULT_LOAD_IMAGE = 1;
     private static final int CAMERA_REQUEST = 1888;
-    private static final int REQUEST_TAKE_PHOTO = 1;
-    private Button buttonLoad;
-    private Button buttonCam;
-    private Button saveImage;
-
 
     private int value;
+    private SeekBar skb;
     private FilteredImage flImg;
-
-    private Drawable drawable;
-    private Bitmap bmp;
-    private String ImagePath;
-    private Uri URI;
 
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
-    static final int NONE = 0;
-    static final int DRAG = 1;
-    static final int ZOOM = 2;
-    int mode = NONE;
-    PointF start = new PointF();
-    PointF mid = new PointF();
-    float oldDist = 1f;
+    private static final int NONE = 0;
+    private static final int DRAG = 1;
+    private static final int ZOOM = 2;
+    private int mode = NONE;
+    private PointF start = new PointF();
+    private PointF mid = new PointF();
+    private float oldDist = 1f;
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+
+            case R.id.reset:
+                flImg.reload();
+                return true;
+
+            case R.id.gallery :
+                Intent gallery = new Intent(Intent.ACTION_GET_CONTENT);
+                gallery.setType("image/*");
+                startActivityForResult(gallery, RESULT_LOAD_IMAGE);
+                return true;
+
+            case R.id.camera:
+                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                return true;
+
+            case R.id.save:
+                Bitmap bmp = flImg.getBmp();
+                saveImgToGallery(bmp, "imgName");
+                return true;
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getSupportActionBar().setTitle("New App");
+
         flImg = new FilteredImage((ImageView) findViewById(R.id.imageView));
-
-        buttonLoad = (Button) findViewById(R.id.button);
-        buttonLoad.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                Intent gallery = new Intent(Intent.ACTION_GET_CONTENT);
-                gallery.setType("image*//*");
-                startActivityForResult(gallery, RESULT_LOAD_IMAGE);
-
-            }
-        });
-
-        buttonCam= (Button) this.findViewById(R.id.button2);
-        buttonCam.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cameraIntent, CAMERA_REQUEST);
-            }
-        });
-
-        /*saveImage = (Button)findViewById(R.id.button3);
-        saveImage.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                galleryAddPic();
-
-            }
-        });*/
-
         flImg.getImageView().setOnTouchListener(new View.OnTouchListener(){
 
             @Override
@@ -138,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
                         oldDist = spacing(event);
                         Log.d(TAG, "oldDist=" + oldDist);
                         if (oldDist > 5f) {
-
                             savedMatrix.set(matrix);
                             midPoint(mid, event);
                             mode = ZOOM;
@@ -176,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
                 return true; // indicate event was handled
             }
 
-
             /*
              * --------------------------------------------------------------------------
              * Method: spacing Parameters: MotionEvent Returns: float Description:
@@ -206,7 +196,81 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        skb = (SeekBar) findViewById(R.id.seekBar);
+        final TextView valuePrint = (TextView) findViewById(R.id.seekbarValue);
+        this.value = skb.getProgress();
+        valuePrint.setText(String.valueOf(this.value));
+
+        skb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                value = i;
+                valuePrint.setText(String.valueOf(i));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        Button sobelBut = (Button) findViewById(R.id.sobel);
+        sobelBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                flImg.reload();
+                if(skb.getVisibility()==View.VISIBLE){
+                    skb.setVisibility(View.GONE);
+                }
+                flImg.sobelConvolution();
+                flImg.setImageViewFromBitmap();
+
+            }
+        });
+
+        Button convolBut = (Button) findViewById(R.id.convol);
+        convolBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flImg.reload();
+                if(skb.getVisibility()==View.GONE){
+                    skb.setVisibility(View.VISIBLE);
+                    skb.setProgress(1);
+                }
+                if(skb.getMax()!=10){
+                    skb.setProgress(1);
+                    skb.setMax(10);
+                }
+                flImg.averageConvolution(value);
+                flImg.setImageViewFromBitmap();
+            }
+        });
+
+        Button gaussienBut = (Button) findViewById(R.id.gauss);
+        gaussienBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flImg.reload();
+                if(skb.getVisibility()==View.GONE){
+                    skb.setVisibility(View.VISIBLE);
+                    skb.setProgress(1);
+                }
+                if(skb.getMax()!=10){
+                    skb.setProgress(1);
+                    skb.setMax(10);
+                }
+                flImg.gaussien(value);
+                flImg.setImageViewFromBitmap();
+            }
+        });
+
     }
+
 
 
 
@@ -219,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
             Uri imageUri = data.getData();
             flImg.getImageView().setImageURI(imageUri);
             flImg.setBitmapFromImageView();
+
         }
 
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
@@ -226,7 +291,6 @@ public class MainActivity extends AppCompatActivity {
             flImg.getImageView().setImageBitmap(photo);
             flImg.setBitmapFromImageView();
         }
-
     }
 
     @Override
@@ -241,53 +305,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  *//* prefix *//*
-                ".jpg",         *//* suffix *//*
-                storageDir      *//* directory *//*
-        );
+    private void saveImgToGallery(Bitmap bm, String imgName) {
+        OutputStream fOut = null;
+        String strDirectory = Environment.getExternalStorageDirectory().toString();
 
-        // Save a file: path for use with ACTION_VIEW intents
-        ImagePath = image.getAbsolutePath();
-        return image;
-    }
+        File f = new File(strDirectory, imgName);
 
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                System.out.println("Error while creating the File");
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.android.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-            }
+        try {
+            fOut = new FileOutputStream(f);
+            /**Compress image**/
+            bm.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+            fOut.flush();
+            fOut.close();
+            /**Update image to gallery**/
+            MediaStore.Images.Media.insertImage(getContentResolver(), f.getAbsolutePath(), f.getName(), f.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-
-    private void galleryAddPic() {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(ImagePath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
-    }
-*/
-
 
 }
