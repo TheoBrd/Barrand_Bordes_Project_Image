@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private static int RESULT_POPUP_ONE_COLOR = 3;
     private static int RESULT_POPUP_GAUSSIAN = 4;
     private static int RESULT_POPUP_AVERAGE = 5;
-    private static final int CAMERA_REQUEST = 6;
+    private static final int RESULT_CAMERA_REQUEST = 6;
 
 
     private int valueSKB;
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.camera:
                 //create a intent, and next call an activity which return an image;
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                startActivityForResult(cameraIntent, RESULT_CAMERA_REQUEST);
                 return true;
 
             case R.id.save:
@@ -148,7 +148,6 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case MotionEvent.ACTION_UP: // first finger lifted
-                        mode = NONE;
                         break;
 
                     case MotionEvent.ACTION_POINTER_UP: // second finger lifted
@@ -183,10 +182,9 @@ public class MainActivity extends AppCompatActivity {
                             if (newDist > 5f)
                             {
                                 matrix.set(savedMatrix);
-                                scale = newDist / oldDist; // setting the scaling of the
-                                // matrix...if scale > 1 means
-                                // zoom in...if scale < 1 means
-                                // zoom out
+                                scale = newDist / oldDist;
+                                // setting the scaling of the matrix...if scale > 1 means zoom in
+                                // if scale < 1 means zoom out
                                 matrix.postScale(scale, scale, mid.x, mid.y);
                             }
                         }
@@ -465,7 +463,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+        if (requestCode == RESULT_CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             Bitmap photo = (Bitmap) data.getExtras().get("data");
             flImg.getImageView().setImageBitmap(photo);
             flImg.setBitmapFromImageView();

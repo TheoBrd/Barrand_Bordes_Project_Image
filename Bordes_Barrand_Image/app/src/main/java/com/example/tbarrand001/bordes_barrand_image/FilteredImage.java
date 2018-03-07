@@ -104,13 +104,17 @@ public class FilteredImage {
      * @param bmp
      * @return the image's histogram
      */
-    private int[] histogram(int [] bmp){
-        int[] histo = new int[256];
+    private int[][] histogram(int [] bmp){
+        int[][] histo = new int[3][256];
         for(int i=0; i<256; i++){
-            histo[i]=0;
+            histo[0][i]=0;
+            histo[1][i]=0;
+            histo[2][i]=0;
         }
         for(int p=0; p < bmp.length; p++){
-            histo[red(bmp[p])]++;
+            histo[0][red(bmp[p])]++;
+            histo[1][green(bmp[p])]++;
+            histo[2][blue(bmp[p])]++;
         }
         return histo;
     }
@@ -128,14 +132,18 @@ public class FilteredImage {
             int gray = (int) (0.3*r+0.59*g+0.11*b);
             pixelMapGrey[p] = Color.rgb(gray,gray,gray);
         }
-        int[] histo = histogram(pixelMapGrey);
+        int[][] histo = histogram(pixelMapGrey);
 
-        int[] Cumul= new int [256];
+        int[][] Cumul= new int [3][256];
         for(int i =0; i<256; i++){
             if(i==0){
-                Cumul[i]=histo[i];
+                Cumul[0][i]=histo[0][i];
+                Cumul[1][i]=histo[0][i];
+                Cumul[2][i]=histo[0][i];
             }else{
-                Cumul[i]=Cumul[i-1]+histo[i];
+                Cumul[0][i]=Cumul[0][i-1]+histo[0][i];
+                Cumul[1][i]=Cumul[1][i-1]+histo[1][i];
+                Cumul[2][i]=Cumul[2][i-1]+histo[2][i];
             }
         }
 
@@ -143,9 +151,9 @@ public class FilteredImage {
             int r = red(pixelMap[p]);
             int b = blue(pixelMap[p]);
             int g = green(pixelMap[p]);
-            r= (Cumul[r]*255)/(pixelMap.length);
-            b= (Cumul[b]*255)/(pixelMap.length);
-            g= (Cumul[g]*255)/(pixelMap.length);
+            r= (Cumul[0][r]*255)/(pixelMap.length);
+            g= (Cumul[1][g]*255)/(pixelMap.length);
+            b= (Cumul[2][b]*255)/(pixelMap.length);
             pixelMap[p] = Color.rgb(r,g,b);
         }
 
