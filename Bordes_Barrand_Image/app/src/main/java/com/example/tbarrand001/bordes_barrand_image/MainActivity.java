@@ -1,6 +1,7 @@
 package com.example.tbarrand001.bordes_barrand_image;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private PointF mid = new PointF();
     private float oldDist = 1f;
     private int returnPopupValue;
+    private Button compare;
 
     /** Initialize menu from menu layout**/
     @Override
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,6 +130,22 @@ public class MainActivity extends AppCompatActivity {
         final TextView valuePrintG = (TextView) findViewById(R.id.seekbarValueG);
         this.valueSKB = skb.getProgress();
         valuePrintG.setText(String.valueOf(this.valueSKB));
+        this.compare = (Button)findViewById(R.id.compareBut);
+        this.compare.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        flImg.setImageViewFromResetBitmap();
+                        return true; // if you want to handle the touch event
+                    case MotionEvent.ACTION_UP:
+                        flImg.setImageViewFromBitmap();
+                        return true; // if you want to handle the touch event
+                }
+                return false;
+            }
+        });
+
 
 
         /**Zoom in and Zoom out**/
@@ -445,6 +464,22 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        //Invert Button
+        Button invertBut = (Button) findViewById(R.id.invert);
+        invertBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flImg.reload();
+                if(skb.getVisibility()==View.VISIBLE){
+                    skb.setVisibility(View.GONE);
+                }
+                flImg.invert();
+                flImg.setImageViewFromBitmap();
+            }
+        });
+
+
 
     }
 

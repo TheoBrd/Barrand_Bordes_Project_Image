@@ -1,9 +1,13 @@
 package com.example.tbarrand001.bordes_barrand_image;
 
 import android.graphics.Bitmap;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.view.View;
 import android.widget.ImageView;
+
+import java.nio.IntBuffer;
 
 import static android.graphics.Color.HSVToColor;
 import static android.graphics.Color.RGBToHSV;
@@ -76,6 +80,13 @@ public class FilteredImage {
      */
     public void setImageViewFromBitmap(){
         this.imageView.setImageBitmap(this.bmp);
+    }
+
+    /**
+     * Change the ImageView depends on the bitmap
+     */
+    public void setImageViewFromResetBitmap(){
+        this.imageView.setImageBitmap(this.reset);
     }
 
     /**
@@ -511,6 +522,71 @@ public class FilteredImage {
         this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
 
     }
+
+    public void invert() {
+
+        int masque = 0x00ffffffff;
+        int[] pixelMap = new int[this.width *this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        for (int p=0; p< pixelMap.length; p++) {
+            pixelMap[p] ^= masque;
+        }
+        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+    }
+
+    public Bitmap colorDodgeBlend(Bitmap source, Bitmap layer) {
+        Bitmap base = source.copy(Bitmap.Config.ARGB_8888, true);
+        Bitmap blend = layer.copy(Bitmap.Config.ARGB_8888, false);
+
+        IntBuffer buffBase = IntBuffer.allocate(base.getWidth() * base.getHeight());
+        base.copyPixelsToBuffer(buffBase);
+        buffBase.rewind();
+
+        IntBuffer buffBlend = IntBuffer.allocate(blend.getWidth() * blend.getHeight());
+        blend.copyPixelsToBuffer(buffBlend);
+        buffBlend.rewind();
+
+        IntBuffer buffOut = IntBuffer.allocate(base.getWidth() * base.getHeight());
+        buffOut.rewind();
+
+        while (buffOut.position() < buffOut.limit()) {
+
+            int filterInt = buffBlend.get();
+            int srcInt = buffBase.get();
+
+            int redValueFilter = Color.red(filterInt);
+            int greenValueFilter = Color.green(filterInt);
+            int blueValueFilter = Color.blue(filterInt);
+
+            int redValueSrc = Color.red(srcInt);
+            int greenValueSrc = Color.green(srcInt);
+            int blueValueSrc = Color.blue(srcInt);
+
+            int redValueFinal = colordodge(redValueFilter, redValueSrc);
+            int greenValueFinal = colordodge(greenValueFilter, greenValueSrc);
+            int blueValueFinal = colordodge(blueValueFilter, blueValueSrc);
+
+
+            int pixel = Color.argb(255, redValueFinal, greenValueFinal, blueValueFinal);
+
+
+            buffOut.put(pixel);
+        }
+
+        buffOut.rewind();
+
+        base.copyPixelsFromBuffer(buffOut);
+        blend.recycle();
+
+        return base;
+    }
+
+    private int colordodge(int in1, int in2) {
+        float image = (float)in2;
+        float mask = (float)in1;
+        return ((int) ((image == 255) ? image:Math.min(255, (((long)mask << 8 ) / (255 - image)))));
+    }
+
 
 
 }
