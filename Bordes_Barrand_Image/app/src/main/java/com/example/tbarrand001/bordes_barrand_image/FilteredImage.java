@@ -534,7 +534,23 @@ public class FilteredImage {
         this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
     }
 
-    public Bitmap colorDodgeBlend(Bitmap source, Bitmap layer) {
+//    public void blur(){
+//        double[][] GaussianBlurConfig = new double[][]{
+//                {-1, 0, -1},
+//                {0, 4, 0},
+//                {-1, 0, -1}
+//        };
+//
+//        ConvolutionMatrix convMatrix = new ConvolutionMatrix(3);
+//
+//        convMatrix.applyConfig(GaussianBlurConfig);
+//        convMatrix.Factor = 1;
+//        convMatrix.Offset = 150;
+//        this.bmp = ConvolutionMatrix.computeConvolution3x3(this.bmp, convMatrix);
+//    }
+
+
+    public void ColorDodgeBlend(Bitmap source, Bitmap layer) {
         Bitmap base = source.copy(Bitmap.Config.ARGB_8888, true);
         Bitmap blend = layer.copy(Bitmap.Config.ARGB_8888, false);
 
@@ -550,7 +566,6 @@ public class FilteredImage {
         buffOut.rewind();
 
         while (buffOut.position() < buffOut.limit()) {
-
             int filterInt = buffBlend.get();
             int srcInt = buffBase.get();
 
@@ -566,9 +581,7 @@ public class FilteredImage {
             int greenValueFinal = colordodge(greenValueFilter, greenValueSrc);
             int blueValueFinal = colordodge(blueValueFilter, blueValueSrc);
 
-
             int pixel = Color.argb(255, redValueFinal, greenValueFinal, blueValueFinal);
-
 
             buffOut.put(pixel);
         }
@@ -578,15 +591,16 @@ public class FilteredImage {
         base.copyPixelsFromBuffer(buffOut);
         blend.recycle();
 
-        return base;
+        this.reload();
+        this.bmp =base;
     }
 
     private int colordodge(int in1, int in2) {
-        float image = (float)in2;
-        float mask = (float)in1;
-        return ((int) ((image == 255) ? image:Math.min(255, (((long)mask << 8 ) / (255 - image)))));
-    }
+        float image = (float) in2;
+        float mask = (float) in1;
+        return ((int) ((image == 255) ? image : Math.min(255, (((long) mask << 8) / (255 - image)))));
 
+    }
 
 
 }
