@@ -252,22 +252,23 @@ public class FilteredImage {
                                                 { 1,  1,  1}};
 
 
+        double[][] RGB_min_max = new double[][] {{0,0,0}, {0,0,0}};
         for(int p =0 ; p<pixelMap.length; p++){
 
             if(p>this.width && p<((this.width *this.height)-this.width) && (p%this.width)>(0) && (p%this.width)<(this.width -1)){
 
                 double[] RGB = convolution(1,masque, pixelMap, p);
 
-                if (RGB[2] > 255)
-                { RGB[2]= 255; }else if(RGB[2] < 0){RGB[2]= 0;}
-
-                if (RGB[1] > 255)
-                { RGB[1]= 255; }else if(RGB[1] < 0){RGB[1]= 0;}
-
-                if (RGB[0] > 255)
-                { RGB[0]= 255; }else if(RGB[0] < 0){RGB[0]= 0;}
+                RGB[0]=resizeValue(-4*255, 4*255, 255, RGB[0]);
+                RGB[1]=resizeValue(-4*255, 4*255, 255, RGB[1]);
+                RGB[2]=resizeValue(-4*255, 4*255, 255, RGB[2]);
 
                 gray = (int) (0.3*RGB[0]+0.59*RGB[1]+0.11*RGB[2]);
+                if(gray<20){
+                    gray=0;
+                }else if (gray>245){
+                    gray=255;
+                }
                 finalPixelMap[p] = Color.rgb( gray,gray,gray);
             }else {
                 finalPixelMap[p] = Color.rgb(0,0,0);
@@ -277,6 +278,12 @@ public class FilteredImage {
         bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
         this.bmp = bmp2;
     }
+
+    private double resizeValue(int minV, int maxV, int max, double value){
+        value = ((value + Math.abs(minV))/(maxV+ Math.abs(minV)))*max;
+        return value;
+    }
+
 
     public void gaussian(int n){
         int size = 2*n+1;
@@ -534,21 +541,25 @@ public class FilteredImage {
         this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
     }
 
-//    public void blur(){
-//        double[][] GaussianBlurConfig = new double[][]{
-//                {-1, 0, -1},
-//                {0, 4, 0},
-//                {-1, 0, -1}
-//        };
-//
-//        ConvolutionMatrix convMatrix = new ConvolutionMatrix(3);
-//
-//        convMatrix.applyConfig(GaussianBlurConfig);
-//        convMatrix.Factor = 1;
-//        convMatrix.Offset = 150;
-//        this.bmp = ConvolutionMatrix.computeConvolution3x3(this.bmp, convMatrix);
-//    }
+    public void blur(){
 
+        double[][] GaussianBlurConfig = new double[][]{
+                {-1, 0, -1},
+                {0, 4, 0},
+                {-1, 0, -1}
+        };
+
+        ConvolutionMatrix convMatrix = new ConvolutionMatrix(3);
+
+        convMatrix.applyConfig(GaussianBlurConfig);
+        convMatrix.Factor = 1;
+        convMatrix.Offset = 150;
+        this.bmp = ConvolutionMatrix.computeConvolution3x3(this.bmp, convMatrix);
+    }
+
+    public void blur2(){
+        this.bmp = BlurUtilities.approxGaussianBlur(this.bmp, 1);
+    }
 
     public void ColorDodgeBlend(Bitmap source, Bitmap layer) {
         Bitmap base = source.copy(Bitmap.Config.ARGB_8888, true);
@@ -600,6 +611,26 @@ public class FilteredImage {
         float mask = (float) in1;
         return ((int) ((image == 255) ? image : Math.min(255, (((long) mask << 8) / (255 - image)))));
 
+    }
+
+
+    public void cartoon(Bitmap gauss, Bitmap lapla){
+
+
+        int[] pixelMapG = new int[this.width *this.height];
+        gauss.getPixels(pixelMapG, 0, this.width, 0,0, this.width, this.height);
+
+        int[] pixelMapL = new int[this.width *this.height];
+        lapla.getPixels(pixelMapL, 0, this.width, 0,0, this.width, this.height);
+
+
+        for(int p =0; p< pixelMapG.length; p++){
+            if(red(pixelMapL[p])==0 || red(pixelMapL[p])==255){
+                pixelMapG[p] = Color.rgb(0,0,0);
+            }
+        }
+
+        this.bmp.setPixels(pixelMapG, 0, this.width, 0,0, this.width, this.height);
     }
 
 

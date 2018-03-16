@@ -479,6 +479,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Cartoon Button
+        Button cartoonBut = (Button) findViewById(R.id.cartoon);
+        cartoonBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flImg.reload();
+                if(skb.getVisibility()==View.VISIBLE){
+                    skb.setVisibility(View.GONE);
+                }
+                flImg.gaussian(3);
+                Bitmap gaussBmp = flImg.getBmp();
+                flImg.laplacian();
+                Bitmap lapacienBmp = flImg.getBmp();
+                flImg.reload();
+                flImg.cartoon(gaussBmp, lapacienBmp);
+
+                flImg.setImageViewFromBitmap();
+            }
+        });
+
 
 
     }

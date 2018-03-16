@@ -81,6 +81,13 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/cartoon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cartoon" />
+
+            <Button
                 android:id="@+id/invert"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
