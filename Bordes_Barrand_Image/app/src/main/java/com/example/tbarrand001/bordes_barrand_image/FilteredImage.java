@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -623,14 +624,83 @@ public class FilteredImage {
         int[] pixelMapL = new int[this.width *this.height];
         lapla.getPixels(pixelMapL, 0, this.width, 0,0, this.width, this.height);
 
+//        int[] pixelMapWhite = new int[this.width *this.height];
+//        for (int p =0; p< pixelMapWhite.length; p++) {
+//            pixelMapWhite[p]= Color.rgb(255,255,255);
+//        }
+
 
         for(int p =0; p< pixelMapG.length; p++){
-            if(red(pixelMapL[p])==0 || red(pixelMapL[p])==255){
-                pixelMapG[p] = Color.rgb(0,0,0);
+            if(red(pixelMapL[p])<126){
+                pixelMapG[p]= Color.rgb(0,0,0);
             }
         }
 
         this.bmp.setPixels(pixelMapG, 0, this.width, 0,0, this.width, this.height);
+    }
+
+
+    private double distEuclidienne(int p, int orig, int w){
+        int xP = p%w;
+        int xO = orig%w;
+        int yP = p;
+        int yO = orig;
+        int cptP = 0;
+        int cptO = 0;
+        do{
+            yP -= w;
+            cptP++;
+        }while(yP>w);
+        do{
+            yO -= w;
+            cptO++;
+        }while(yO>w);
+
+        yP = cptP;
+        yO = cptO;
+
+        double distE = Math.sqrt((xO-xP)*(xO-xP) + (yO-yP)*(yO-yP));
+        return distE;
+    }
+
+
+    private void meanShift(int radius, int distance){
+
+        int[] pixelMap = new int[this.width *this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+
+
+        int[] finalPixelMap = new int[this.width *this.height];
+        for(int s =0; s< finalPixelMap.length; s++){
+            finalPixelMap[s]=Color.rgb(0,0,0);
+        }
+
+        for(int p =0; p<pixelMap.length;p++){
+            if(p>radius*this.width && p<((this.width *this.height)-radius*this.width) && (p%this.width)>(radius-1) && (p%this.width)<(this.width -radius)){
+                float mean = 0;
+                int cpt = 0;
+                float[] HSVorigin = new float[3];
+                RGBToHSV(red(pixelMap[p]), green(pixelMap[p]), blue(pixelMap[p]), HSVorigin);
+                for(int u=-radius; u<=radius; u++){
+                    for(int v=-radius; v<=radius; v++){
+                        int indices = p+u+(this.width *v);
+                        float[] HSV = new float[3];
+                        RGBToHSV(red(pixelMap[indices]), green(pixelMap[indices]), blue(pixelMap[indices]), HSV);
+                        if(HSV[0]>= HSVorigin[0]-distance && HSV[0]<= HSVorigin[0]+distance){
+                            mean += HSV[0];
+                            cpt++;
+                        }
+
+                    }
+                }
+                mean = mean/cpt;
+                HSVorigin[0]=mean;
+
+                finalPixelMap[p] = HSVToColor(HSVorigin);
+            }
+
+        }
+
     }
 
 
