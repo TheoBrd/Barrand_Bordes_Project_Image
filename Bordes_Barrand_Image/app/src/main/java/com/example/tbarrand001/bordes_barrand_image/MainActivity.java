@@ -499,7 +499,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Invert Button
+        // Button
         Button meanButt = (Button) findViewById(R.id.mean);
         meanButt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -508,8 +508,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
-
-                flImg.runMeanShift(1,10,20);
+                flImg.medianCut();
                 flImg.setImageViewFromBitmap();
             }
         });

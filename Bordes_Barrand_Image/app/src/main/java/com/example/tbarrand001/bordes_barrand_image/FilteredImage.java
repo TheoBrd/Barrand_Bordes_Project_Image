@@ -640,66 +640,71 @@ public class FilteredImage {
     }
 
 
-    private double distEuclidienne(int p, int orig, int w){
-        int xP = p%w;
-        int xO = orig%w;
-        int yP = p;
-        int yO = orig;
-        int cptP = 0;
-        int cptO = 0;
-        do{
-            yP -= w;
-            cptP++;
-        }while(yP>w);
-        do{
-            yO -= w;
-            cptO++;
-        }while(yO>w);
 
-        yP = cptP;
-        yO = cptO;
-
-        double distE = Math.sqrt((xO-xP)*(xO-xP) + (yO-yP)*(yO-yP));
-        return distE;
-    }
-
-
-    private void meanShift(int radius, int distance){
-
+    public void medianCut(){
         int[] pixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
 
+        int[][] histoRGB = histogram(pixelMap);
+        int medianR, medianG, medianB, sumR, sumG, sumB;
+        sumR=sumG=sumB=0;
 
-        int[] finalPixelMap = new int[this.width *this.height];
-        for(int s =0; s< finalPixelMap.length; s++){
-            finalPixelMap[s]=Color.rgb(0,0,0);
+        for(int i=0; i<256; i++){
+            sumR+= histoRGB[0][i];
+            sumG+= histoRGB[1][i];
+            sumB+= histoRGB[2][i];
+        }
+        medianR=sumR/2;
+        medianG=sumG/2;
+        medianB=sumB/2;
+
+        sumR=sumG=sumB=0;
+        int iter=0;
+        boolean findR, findG, findB;
+        findR=findG=findB=false;
+        while(!findR || !findG || !findB){
+
+            sumR+= histoRGB[0][iter];
+            sumG+= histoRGB[1][iter];
+            sumB+= histoRGB[2][iter];
+
+            if(sumR>=medianR){
+                findR=true;
+                medianR=iter;
+            }
+            if(sumG>=medianG){
+                findG=true;
+                medianG=iter;
+            }
+            if(sumB>=medianB){
+                findB=true;
+                medianB=iter;
+            }
+            iter++;
         }
 
-        for(int p =0; p<pixelMap.length;p++){
-            if(p>radius*this.width && p<((this.width *this.height)-radius*this.width) && (p%this.width)>(radius-1) && (p%this.width)<(this.width -radius)){
-                float mean = 0;
-                int cpt = 0;
-                float[] HSVorigin = new float[3];
-                RGBToHSV(red(pixelMap[p]), green(pixelMap[p]), blue(pixelMap[p]), HSVorigin);
-                for(int u=-radius; u<=radius; u++){
-                    for(int v=-radius; v<=radius; v++){
-                        int indices = p+u+(this.width *v);
-                        float[] HSV = new float[3];
-                        RGBToHSV(red(pixelMap[indices]), green(pixelMap[indices]), blue(pixelMap[indices]), HSV);
-                        if(HSV[0]>= HSVorigin[0]-distance && HSV[0]<= HSVorigin[0]+distance){
-                            mean += HSV[0];
-                            cpt++;
-                        }
+        for (int p=0; p< pixelMap.length; p++) {
+            int red, green, blue;
 
-                    }
-                }
-                mean = mean/cpt;
-                HSVorigin[0]=mean;
-
-                finalPixelMap[p] = HSVToColor(HSVorigin);
+            if(red(pixelMap[p])<medianR){
+                red = histoRGB[0][medianR/2];
+            }else {
+                red = histoRGB[0][(256+medianR)/2];
+            }
+            if(green(pixelMap[p])<medianG){
+                green = histoRGB[1][medianG/2];
+            }else {
+                green = histoRGB[1][(256+medianG)/2];
+            }
+            if(blue(pixelMap[p])<medianB){
+                blue = histoRGB[2][medianB/2];
+            }else {
+                blue = histoRGB[2][(256+medianB)/2];
             }
 
+            pixelMap[p]=Color.rgb(red,green,blue);
         }
+        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
 
     }
 
