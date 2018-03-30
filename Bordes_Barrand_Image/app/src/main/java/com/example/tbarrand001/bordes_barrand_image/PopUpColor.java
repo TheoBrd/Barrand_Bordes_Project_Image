@@ -19,7 +19,6 @@ import android.widget.TextView;
 public class PopUpColor extends PopUp{
 
     private ImageView colorShow;
-    private Bitmap bmp;
 
     @Override
     protected void onCreate( Bundle savedInstanceState) {

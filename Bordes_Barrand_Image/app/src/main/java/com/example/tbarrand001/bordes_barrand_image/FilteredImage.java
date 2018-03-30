@@ -1,19 +1,25 @@
 package com.example.tbarrand001.bordes_barrand_image;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.renderscript.RenderScript;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 
 import java.nio.IntBuffer;
 
+import static android.graphics.Bitmap.createScaledBitmap;
 import static android.graphics.Color.HSVToColor;
 import static android.graphics.Color.RGBToHSV;
 import static android.graphics.Color.blue;
 import static android.graphics.Color.green;
 import static android.graphics.Color.red;
+
+import android.renderscript.Allocation;
 
 /**
  * Created by tbarrand001 & cbordes001 on 12/02/18.
@@ -40,13 +46,28 @@ public class FilteredImage {
         this.height = this.bmp.getHeight();
     }
 
-
     /**
      *get the ImageView
      * @return the ImageView
      */
     public ImageView getImageView() {
         return imageView;
+    }
+
+    /**
+     *get the width of ImageView
+     * @return the width of ImageView
+     */
+    public int getWidth() {
+        return this.width;
+    }
+
+    /**
+     *get the height of ImageView
+     * @return the height of ImageView
+     */
+    public int getHeight() {
+        return this.height;
     }
 
     /**
@@ -90,9 +111,30 @@ public class FilteredImage {
     }
 
     /**
+     * Change the ImageView's Bitmap in a shade of gray using RenderScript
+     */
+    public void toGrayRS(Bitmap bmp, Context context) {
+        RenderScript rs = RenderScript.create(context);
+
+        Allocation input = Allocation.createFromBitmap(rs, bmp);
+        Allocation output = Allocation.createTyped(rs, input.getType());
+
+        ScriptC_grey greyScript = new ScriptC_grey(rs);
+
+        greyScript.forEach_toGray(input, output);
+        output.copyTo(bmp);
+
+        input.destroy();
+        output.destroy();
+        greyScript.destroy();
+        rs.destroy();
+
+    }
+
+    /**
      * Change the ImageView's Bitmap in a shade of gray
      */
-    public void toGray(){
+    /*public void toGray(){
 
         int[] pixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
@@ -108,7 +150,7 @@ public class FilteredImage {
 
         }
         this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-    }
+    }*/
 
     /**
      *

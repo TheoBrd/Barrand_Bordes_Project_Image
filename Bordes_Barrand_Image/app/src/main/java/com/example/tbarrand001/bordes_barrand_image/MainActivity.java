@@ -30,6 +30,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
+import static android.graphics.Bitmap.createScaledBitmap;
+
+import android.renderscript.Allocation;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -263,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
 
                         break;
 
-                    //If SeekBar max =200, then we using Contrast
+                    //If SeekBar max =240, then we using Contrast
                     case 240 :
 
                         //center the seekBar progress in order to use negative values
@@ -302,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
         sobelBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                flImg.reload();
+                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE ){
                     skb.setVisibility(View.GONE);
                 }
@@ -317,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
         convolBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
+                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
@@ -332,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
         gaussienBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
+                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
@@ -347,7 +350,7 @@ public class MainActivity extends AppCompatActivity {
         laplacianBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
+                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
@@ -361,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
         brightBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
+                //flImg.reload();
                 //Display the SeekBar and set progress in the center
                 if(skb.getVisibility()==View.GONE){
                     skb.setVisibility(View.VISIBLE);
@@ -381,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
         contrastBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
+                //flImg.reload();
                 if(skb.getVisibility()==View.GONE){
                     skb.setVisibility(View.VISIBLE);
                     skb.setProgress(120);
@@ -398,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
         equalizationBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
+                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
@@ -412,7 +415,7 @@ public class MainActivity extends AppCompatActivity {
         colorizeBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
+                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
@@ -431,7 +434,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
-                flImg.toGray();
+                flImg.toGrayRS(flImg.getBmp(), getApplicationContext());
                 flImg.setImageViewFromBitmap();
             }
         });
@@ -455,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
         oneColorButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
+                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
@@ -470,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
         invertBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
+                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
@@ -529,7 +532,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void saveImgToGallery(Bitmap bm, String imgName) {
+    private void saveImgToGallery(Bitmap bmp, String imgName) {
         OutputStream fOut = null;
         String strDirectory = Environment.getExternalStorageDirectory().toString();
 
@@ -538,7 +541,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             fOut = new FileOutputStream(f);
             /**Compress image**/
-            bm.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+            resizeBitmap(bmp);
             fOut.flush();
             fOut.close();
             /**Update image to gallery**/
@@ -577,6 +581,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    public void resizeBitmap(Bitmap bitmap) {
+        Bitmap bmp = createScaledBitmap(bitmap, flImg.getWidth(), flImg.getHeight(), true);
     }
 
 
