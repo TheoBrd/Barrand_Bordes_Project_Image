@@ -3,24 +3,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/reload.svg"
-        android:icon="@android:drawable/ic_menu_revert"
+        android:id="@+id/reload"
+        android:icon="@drawable/reload"
         android:title="Reset"
         app:showAsAction="always" />
     <item
-        android:id="@+id/camera.svg"
-        android:icon="@android:drawable/ic_menu_camera"
+        android:id="@+id/camera"
+        android:icon="@drawable/camera"
         android:title="Camera"
         app:showAsAction="always" />
     <item
-        android:id="@+id/gallery2.svg"
-        android:icon="@android:drawable/ic_menu_gallery"
+        android:id="@+id/gallery"
+        android:icon="@drawable/gallery"
         android:title="Gallery"
         app:showAsAction="always" />
     <item
-        android:id="@+id/save2.svg"
-        android:icon="@android:drawable/ic_menu_save"
+        android:id="@+id/save"
+        android:icon="@drawable/save"
         android:title="Save"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/undo"
+        android:icon="@drawable/undo"
+        android:title="Undo"
         app:showAsAction="always" />
 
 </menu>

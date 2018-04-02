@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import java.nio.IntBuffer;
+import java.util.LinkedList;
 
 import static android.graphics.Bitmap.createScaledBitmap;
 import static android.graphics.Color.HSVToColor;
@@ -32,7 +33,7 @@ public class FilteredImage {
     private ImageView imageView;
     private Bitmap bmp;
     private Bitmap reset;
-    private Bitmap undo;
+    private LinkedList<Bitmap> undo;
     private int width;
     private int height;
 
@@ -44,7 +45,8 @@ public class FilteredImage {
         this.imageView = imgV;
         this.bmp = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
         this.reset = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
-        this.undo = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        this.undo = new LinkedList<>();
+        undo.add(this.bmp.copy(Bitmap.Config.ARGB_8888, true));
         this.width = this.bmp.getWidth();
         this.height = this.bmp.getHeight();
     }
@@ -82,6 +84,33 @@ public class FilteredImage {
     }
 
     /**
+     * Update the LinkedList undo
+     */
+    public void setUndoList(){
+        undo.add(this.bmp.copy(Bitmap.Config.ARGB_8888,true));
+    }
+
+    /**
+     * Clear the LinkedList undo
+     */
+    public void reloadUndoList() {
+        this.undo.clear();
+    }
+
+    /**
+     * Check if the LinkedList undo is empty or not
+     * @return true if undo is empty, else return false
+     */
+    public boolean undoIsEmpty(){
+        if (this.undo.size() == 0){
+            return true;
+        }
+        else {
+            return false ;
+        }
+    }
+
+    /**
      * Reload the old ImageView's bitmap
      */
     public void reload(){
@@ -89,8 +118,14 @@ public class FilteredImage {
         setImageViewFromBitmap();
     }
 
-    public void setUndoBmp(){
-        this.undo = this.bmp.copy(Bitmap.Config.ARGB_8888,true);
+    /**
+     * Undo the latest filter applied
+     */
+    public void undo() {
+        this.bmp = this.undo.getLast();
+        setImageViewFromBitmap();
+        this.undo.removeLast();
+
     }
 
     /**
@@ -545,7 +580,7 @@ public class FilteredImage {
         this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
     }
 
-    public void toSepiaRS(Bitmap bmp, Context context) {
+    /*public void toSepiaRS(Bitmap bmp, Context context) {
         RenderScript rs = RenderScript.create(context);
 
         Allocation input = Allocation.createFromBitmap(rs, bmp);
@@ -560,9 +595,9 @@ public class FilteredImage {
         output.destroy();
         sepiaScript.destroy();
         rs.destroy();
-    }
+    }*/
 
-    /*public void sepia(){
+    public void sepia(){
         int[] pixelMap = new int[this.width *this.height];
         int[] finalPixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
@@ -594,9 +629,26 @@ public class FilteredImage {
         }
         this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
 
-    }*/
+    }
 
     public void invert() {
+        int[] pixelMap = new int[this.width * this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0, 0, this.width, this.height);
+
+        for (int p=0; p<pixelMap.length; p++) {
+            int red = red(pixelMap[p]);
+            int green = green(pixelMap[p]);
+            int blue = blue(pixelMap[p]);
+
+            int redInvert = 255 - red;
+            int greenInvert = 255 - green;
+            int blueInvert = 255 - blue;
+            pixelMap[p] = Color.rgb(redInvert, greenInvert, blueInvert);
+        }
+        this.bmp.setPixels(pixelMap, 0, this.width, 0, 0, this.width, this.height);
+    }
+
+    /*public void invert() {
 
         int masque = 0x00ffffffff;
         int[] pixelMap = new int[this.width *this.height];
@@ -605,7 +657,7 @@ public class FilteredImage {
             pixelMap[p] ^= masque;
         }
         this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-    }
+    }*/
 
     public void blur(){
 
