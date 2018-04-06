@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 
 import static android.graphics.Color.HSVToColor;
 import static android.graphics.Color.RGBToHSV;
@@ -117,16 +118,16 @@ public class FilteredImage {
      * @return the image's histogram
      */
     private int[][] histogram(int [] bmp){
-        int[][] histo = new int[3][256];
+        int[][] histo = new int[256][3];
         for(int i=0; i<256; i++){
-            histo[0][i]=0;
-            histo[1][i]=0;
-            histo[2][i]=0;
+            histo[i][0]=0;
+            histo[i][1]=0;
+            histo[i][2]=0;
         }
         for(int p=0; p < bmp.length; p++){
-            histo[0][red(bmp[p])]++;
-            histo[1][green(bmp[p])]++;
-            histo[2][blue(bmp[p])]++;
+            histo[red(bmp[p])][0]++;
+            histo[green(bmp[p])][1]++;
+            histo[blue(bmp[p])][2]++;
         }
         return histo;
     }
@@ -146,16 +147,16 @@ public class FilteredImage {
         }
         int[][] histo = histogram(pixelMapGrey);
 
-        int[][] Cumul= new int [3][256];
+        int[][] Cumul= new int [256][3];
         for(int i =0; i<256; i++){
             if(i==0){
-                Cumul[0][i]=histo[0][i];
-                Cumul[1][i]=histo[0][i];
-                Cumul[2][i]=histo[0][i];
+                Cumul[i][0]=histo[i][0];
+                Cumul[i][1]=histo[i][1];
+                Cumul[i][2]=histo[i][2];
             }else{
-                Cumul[0][i]=Cumul[0][i-1]+histo[0][i];
-                Cumul[1][i]=Cumul[1][i-1]+histo[1][i];
-                Cumul[2][i]=Cumul[2][i-1]+histo[2][i];
+                Cumul[i][0]=Cumul[i-1][0]+histo[i][0];
+                Cumul[i][1]=Cumul[i-1][1]+histo[i][1];
+                Cumul[i][2]=Cumul[i-1][2]+histo[i][2];
             }
         }
 
@@ -163,9 +164,9 @@ public class FilteredImage {
             int r = red(pixelMap[p]);
             int b = blue(pixelMap[p]);
             int g = green(pixelMap[p]);
-            r= (Cumul[0][r]*255)/(pixelMap.length);
-            g= (Cumul[1][g]*255)/(pixelMap.length);
-            b= (Cumul[2][b]*255)/(pixelMap.length);
+            r= (Cumul[r][0]*255)/(pixelMap.length);
+            g= (Cumul[g][1]*255)/(pixelMap.length);
+            b= (Cumul[b][2]*255)/(pixelMap.length);
             pixelMap[p] = Color.rgb(r,g,b);
         }
 
@@ -641,7 +642,7 @@ public class FilteredImage {
 
 
 
-    public void medianCut(){
+    public void medianCutTest(){
         int[] pixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
 
@@ -705,6 +706,19 @@ public class FilteredImage {
             pixelMap[p]=Color.rgb(red,green,blue);
         }
         this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+
+    }
+
+    public void medianCut(){
+
+        int[] pixelMap = new int[this.width *this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        int[][] histogram  = histogram(pixelMap);
+
+        ArrayList<ColorCube> listCube = new ArrayList<ColorCube>();
+        ColorCube firstCube = new ColorCube(histogram);
+        listCube.add(firstCube);
+
 
     }
 
