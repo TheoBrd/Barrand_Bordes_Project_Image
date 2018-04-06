@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import java.nio.IntBuffer;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 import static android.graphics.Bitmap.createScaledBitmap;
 import static android.graphics.Color.HSVToColor;
@@ -33,7 +33,7 @@ public class FilteredImage {
     private ImageView imageView;
     private Bitmap bmp;
     private Bitmap reset;
-    private Bitmap undo;
+    private LinkedList<Bitmap> undo;
     private int width;
     private int height;
 
@@ -45,7 +45,8 @@ public class FilteredImage {
         this.imageView = imgV;
         this.bmp = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
         this.reset = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
-        this.undo = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        this.undo = new LinkedList<>();
+        undo.add(this.bmp.copy(Bitmap.Config.ARGB_8888, true));
         this.width = this.bmp.getWidth();
         this.height = this.bmp.getHeight();
     }
@@ -83,6 +84,33 @@ public class FilteredImage {
     }
 
     /**
+     * Update the LinkedList undo
+     */
+    public void setUndoList(){
+        undo.add(this.bmp.copy(Bitmap.Config.ARGB_8888,true));
+    }
+
+    /**
+     * Clear the LinkedList undo
+     */
+    public void reloadUndoList() {
+        this.undo.clear();
+    }
+
+    /**
+     * Check if the LinkedList undo is empty or not
+     * @return true if undo is empty, else return false
+     */
+    public boolean undoIsEmpty(){
+        if (this.undo.size() == 0){
+            return true;
+        }
+        else {
+            return false ;
+        }
+    }
+
+    /**
      * Reload the old ImageView's bitmap
      */
     public void reload(){
@@ -90,8 +118,14 @@ public class FilteredImage {
         setImageViewFromBitmap();
     }
 
-    public void setUndoBmp(){
-        this.undo = this.bmp.copy(Bitmap.Config.ARGB_8888,true);
+    /**
+     * Undo the latest filter applied
+     */
+    public void undo() {
+        this.bmp = this.undo.getLast();
+        setImageViewFromBitmap();
+        this.undo.removeLast();
+
     }
 
     /**
@@ -166,16 +200,16 @@ public class FilteredImage {
      * @return the image's histogram
      */
     private int[][] histogram(int [] bmp){
-        int[][] histo = new int[256][3];
+        int[][] histo = new int[3][256];
         for(int i=0; i<256; i++){
-            histo[i][0]=0;
-            histo[i][1]=0;
-            histo[i][2]=0;
+            histo[0][i]=0;
+            histo[1][i]=0;
+            histo[2][i]=0;
         }
         for(int p=0; p < bmp.length; p++){
-            histo[red(bmp[p])][0]++;
-            histo[green(bmp[p])][1]++;
-            histo[blue(bmp[p])][2]++;
+            histo[0][red(bmp[p])]++;
+            histo[1][green(bmp[p])]++;
+            histo[2][blue(bmp[p])]++;
         }
         return histo;
     }
@@ -195,16 +229,16 @@ public class FilteredImage {
         }
         int[][] histo = histogram(pixelMapGrey);
 
-        int[][] Cumul= new int [256][3];
+        int[][] Cumul= new int [3][256];
         for(int i =0; i<256; i++){
             if(i==0){
-                Cumul[i][0]=histo[i][0];
-                Cumul[i][1]=histo[i][1];
-                Cumul[i][2]=histo[i][2];
+                Cumul[0][i]=histo[0][i];
+                Cumul[1][i]=histo[0][i];
+                Cumul[2][i]=histo[0][i];
             }else{
-                Cumul[i][0]=Cumul[i-1][0]+histo[i][0];
-                Cumul[i][1]=Cumul[i-1][1]+histo[i][1];
-                Cumul[i][2]=Cumul[i-1][2]+histo[i][2];
+                Cumul[0][i]=Cumul[0][i-1]+histo[0][i];
+                Cumul[1][i]=Cumul[1][i-1]+histo[1][i];
+                Cumul[2][i]=Cumul[2][i-1]+histo[2][i];
             }
         }
 
@@ -212,9 +246,9 @@ public class FilteredImage {
             int r = red(pixelMap[p]);
             int b = blue(pixelMap[p]);
             int g = green(pixelMap[p]);
-            r= (Cumul[r][0]*255)/(pixelMap.length);
-            g= (Cumul[g][1]*255)/(pixelMap.length);
-            b= (Cumul[b][2]*255)/(pixelMap.length);
+            r= (Cumul[0][r]*255)/(pixelMap.length);
+            g= (Cumul[1][g]*255)/(pixelMap.length);
+            b= (Cumul[2][b]*255)/(pixelMap.length);
             pixelMap[p] = Color.rgb(r,g,b);
         }
 
@@ -546,7 +580,7 @@ public class FilteredImage {
         this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
     }
 
-    public void toSepiaRS(Bitmap bmp, Context context) {
+    /*public void toSepiaRS(Bitmap bmp, Context context) {
         RenderScript rs = RenderScript.create(context);
 
         Allocation input = Allocation.createFromBitmap(rs, bmp);
@@ -561,9 +595,9 @@ public class FilteredImage {
         output.destroy();
         sepiaScript.destroy();
         rs.destroy();
-    }
+    }*/
 
-    /*public void sepia(){
+    public void sepia(){
         int[] pixelMap = new int[this.width *this.height];
         int[] finalPixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
@@ -595,9 +629,26 @@ public class FilteredImage {
         }
         this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
 
-    }*/
+    }
 
     public void invert() {
+        int[] pixelMap = new int[this.width * this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0, 0, this.width, this.height);
+
+        for (int p=0; p<pixelMap.length; p++) {
+            int red = red(pixelMap[p]);
+            int green = green(pixelMap[p]);
+            int blue = blue(pixelMap[p]);
+
+            int redInvert = 255 - red;
+            int greenInvert = 255 - green;
+            int blueInvert = 255 - blue;
+            pixelMap[p] = Color.rgb(redInvert, greenInvert, blueInvert);
+        }
+        this.bmp.setPixels(pixelMap, 0, this.width, 0, 0, this.width, this.height);
+    }
+
+    /*public void invert() {
 
         int masque = 0x00ffffffff;
         int[] pixelMap = new int[this.width *this.height];
@@ -606,7 +657,7 @@ public class FilteredImage {
             pixelMap[p] ^= masque;
         }
         this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-    }
+    }*/
 
     public void blur(){
 
@@ -707,7 +758,7 @@ public class FilteredImage {
 
 
 
-    public void medianCutTest(){
+    public void medianCut(){
         int[] pixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
 
@@ -771,19 +822,6 @@ public class FilteredImage {
             pixelMap[p]=Color.rgb(red,green,blue);
         }
         this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-
-    }
-
-    public void medianCut(){
-
-        int[] pixelMap = new int[this.width *this.height];
-        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-        int[][] histogram  = histogram(pixelMap);
-
-        ArrayList<ColorCube> listCube = new ArrayList<ColorCube>();
-        ColorCube firstCube = new ColorCube(histogram);
-        listCube.add(firstCube);
-
 
     }
 

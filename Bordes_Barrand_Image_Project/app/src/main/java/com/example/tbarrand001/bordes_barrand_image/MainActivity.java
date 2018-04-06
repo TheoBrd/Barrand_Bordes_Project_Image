@@ -15,6 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -78,8 +79,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
 
-            case R.id.reset:
+            case R.id.reload:
                 flImg.reload();
+
                 return true;
 
             /** Go find a image in the phone's gallery **/
@@ -109,6 +111,12 @@ public class MainActivity extends AppCompatActivity {
                 saveImgToGallery(bmp, "imgName");
                 return true;
 
+            case R.id.undo:
+                if (!(flImg.undoIsEmpty())) {
+                    flImg.undo();
+                    return true;
+                }
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -121,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //Set name Action BAr
-        getSupportActionBar().setTitle("Option");
+        getSupportActionBar().setTitle(Html.fromHtml("<small>Options</small>"));
 
         /** Initialize variables  **/
         flImg = new FilteredImage((ImageView) findViewById(R.id.imageView));
@@ -304,12 +312,11 @@ public class MainActivity extends AppCompatActivity {
         sobelBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE ){
                     skb.setVisibility(View.GONE);
                 }
+                flImg.setUndoList();
                 flImg.sobelConvolution();
-                flImg.setUndoBmp();
                 flImg.setImageViewFromBitmap();
 
             }
@@ -320,7 +327,6 @@ public class MainActivity extends AppCompatActivity {
         convolBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
@@ -335,7 +341,6 @@ public class MainActivity extends AppCompatActivity {
         gaussienBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
@@ -350,12 +355,11 @@ public class MainActivity extends AppCompatActivity {
         laplacianBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                flImg.setUndoList();
                 flImg.laplacian();
-                flImg.setUndoBmp();
                 flImg.setImageViewFromBitmap();
             }
         });
@@ -385,7 +389,6 @@ public class MainActivity extends AppCompatActivity {
         contrastBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //flImg.reload();
                 if(skb.getVisibility()==View.GONE){
                     skb.setVisibility(View.VISIBLE);
                     skb.setProgress(120);
@@ -402,12 +405,11 @@ public class MainActivity extends AppCompatActivity {
         equalizationBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                flImg.setUndoList();
                 flImg.equalizationColor();
-                flImg.setUndoBmp();
                 flImg.setImageViewFromBitmap();
             }
         });
@@ -417,7 +419,6 @@ public class MainActivity extends AppCompatActivity {
         colorizeBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
@@ -432,12 +433,11 @@ public class MainActivity extends AppCompatActivity {
         grayBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                flImg.setUndoList();
                 flImg.toGrayRS(flImg.getBmp(), getApplicationContext());
-                flImg.setUndoBmp();
                 flImg.setImageViewFromBitmap();
             }
         });
@@ -447,12 +447,11 @@ public class MainActivity extends AppCompatActivity {
         sepiaBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
-                flImg.toSepiaRS(flImg.getBmp(), getApplicationContext());
-                flImg.setUndoBmp();
+                flImg.setUndoList();
+                flImg.sepia();
                 flImg.setImageViewFromBitmap();
             }
         });
@@ -462,7 +461,6 @@ public class MainActivity extends AppCompatActivity {
         oneColorButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
@@ -477,12 +475,11 @@ public class MainActivity extends AppCompatActivity {
         invertBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                flImg.setUndoList();
                 flImg.invert();
-                flImg.setUndoBmp();
                 flImg.setImageViewFromBitmap();
             }
         });
@@ -502,7 +499,7 @@ public class MainActivity extends AppCompatActivity {
                 Bitmap lapacienBmp = flImg.getBmp();
                 flImg.reload();
                 flImg.cartoon(gaussBmp, lapacienBmp);
-                flImg.setUndoBmp();
+                flImg.setUndoList();
                 flImg.setImageViewFromBitmap();
             }
         });
@@ -517,7 +514,7 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.medianCut();
-                flImg.setUndoBmp();
+                flImg.setUndoList();
                 flImg.setImageViewFromBitmap();
             }
         });
@@ -533,45 +530,46 @@ public class MainActivity extends AppCompatActivity {
 
 
         if(requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK){
+            flImg.reloadUndoList();
             Uri imageUri = data.getData();
             flImg.getImageView().setImageURI(imageUri);
-            flImg.setUndoBmp();
             flImg.setBitmapFromImageView();
-
+            flImg.reload();
         }
 
         if (requestCode == RESULT_CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+            flImg.reloadUndoList();
             Bitmap photo = (Bitmap) data.getExtras().get("data");
             flImg.getImageView().setImageBitmap(photo);
-            flImg.setUndoBmp();
             flImg.setBitmapFromImageView();
+            flImg.reload();
         }
 
         if(requestCode==RESULT_POPUP_COLOR && resultCode==Activity.RESULT_OK){
             returnPopupValue = Integer.parseInt(data.getStringExtra("color"));
+            flImg.setUndoList();
             flImg.colorize(returnPopupValue);
-            flImg.setUndoBmp();
             flImg.setImageViewFromBitmap();
         }
 
         if(requestCode==RESULT_POPUP_ONE_COLOR && resultCode==Activity.RESULT_OK){
             returnPopupValue = Integer.parseInt(data.getStringExtra("color"));
+            flImg.setUndoList();
             flImg.oneColor(returnPopupValue);
-            flImg.setUndoBmp();
             flImg.setImageViewFromBitmap();
         }
 
         if(requestCode==RESULT_POPUP_AVERAGE && resultCode==Activity.RESULT_OK){
             returnPopupValue = Integer.parseInt(data.getStringExtra("convol"));
+            flImg.setUndoList();
             flImg.averageConvolution(returnPopupValue);
-            flImg.setUndoBmp();
             flImg.setImageViewFromBitmap();
         }
 
         if(requestCode== RESULT_POPUP_GAUSSIAN && resultCode==Activity.RESULT_OK){
             returnPopupValue = Integer.parseInt(data.getStringExtra("convol"));
+            flImg.setUndoList();
             flImg.gaussian(returnPopupValue);
-            flImg.setUndoBmp();
             flImg.setImageViewFromBitmap();
         }
     }
