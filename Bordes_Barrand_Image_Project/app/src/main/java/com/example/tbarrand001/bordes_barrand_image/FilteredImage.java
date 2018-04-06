@@ -659,25 +659,6 @@ public class FilteredImage {
         this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
     }*/
 
-    public void blur(){
-
-        double[][] GaussianBlurConfig = new double[][]{
-                {-1, 0, -1},
-                {0, 4, 0},
-                {-1, 0, -1}
-        };
-
-        ConvolutionMatrix convMatrix = new ConvolutionMatrix(3);
-
-        convMatrix.applyConfig(GaussianBlurConfig);
-        convMatrix.Factor = 1;
-        convMatrix.Offset = 150;
-        this.bmp = ConvolutionMatrix.computeConvolution3x3(this.bmp, convMatrix);
-    }
-
-    public void blur2(){
-        this.bmp = BlurUtilities.approxGaussianBlur(this.bmp, 1);
-    }
 
     public void ColorDodgeBlend(Bitmap source, Bitmap layer) {
         Bitmap base = source.copy(Bitmap.Config.ARGB_8888, true);
@@ -821,6 +802,20 @@ public class FilteredImage {
 
             pixelMap[p]=Color.rgb(red,green,blue);
         }
+        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+
+    }
+
+    public void clustering(){
+
+        int[] pixelMap = new int[this.width *this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+
+        for(int p =0; p< pixelMap.length; p++){
+            int tmp = pixelMap[p]/16;
+            pixelMap[p]=tmp*16;
+        }
+
         this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
 
     }
