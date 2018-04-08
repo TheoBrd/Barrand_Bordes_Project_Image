@@ -501,7 +501,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
-                flImg.gaussian(3);
+                flImg.gaussian(2);
                 Bitmap gaussBmp = flImg.getBmp();
                 flImg.laplacian();
                 Bitmap lapacienBmp = flImg.getBmp();
@@ -521,7 +521,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
-                flImg.medianCut();
+                flImg.clustering();
                 flImg.setUndoList();
                 flImg.setImageViewFromBitmap();
             }
