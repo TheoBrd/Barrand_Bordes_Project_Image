@@ -81,7 +81,9 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.reload:
                 flImg.reload();
-
+                if (skb.getVisibility()==View.VISIBLE) {
+                    skb.setProgress(skb.getMax()/2);
+                }
                 return true;
 
             /** Go find a image in the phone's gallery **/
@@ -114,6 +116,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.undo:
                 if (!(flImg.undoIsEmpty())) {
                     flImg.undo();
+                    if (skb.getVisibility()==View.VISIBLE) {
+                        skb.setProgress(skb.getMax()/2);
+                    }
                     return true;
                 }
 
@@ -268,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
                         //center the seekBar progress in order to use negative values
                         valuePrintG.setText(String.valueOf(valueSKB -100));
                         flImg.reload();
+                        flImg.setUndoList();
                         flImg.brightness(valueSKB -100);
                         flImg.setImageViewFromBitmap();
 
@@ -279,6 +285,8 @@ public class MainActivity extends AppCompatActivity {
                         //center the seekBar progress in order to use negative values
                         valuePrintG.setText(String.valueOf(valueSKB -120));
                         flImg.reload();
+                        flImg.setUndoList();
+
                         flImg.contrast(valueSKB -120);
                         flImg.setImageViewFromBitmap();
                         break;
@@ -498,8 +506,8 @@ public class MainActivity extends AppCompatActivity {
                 flImg.laplacian();
                 Bitmap lapacienBmp = flImg.getBmp();
                 flImg.reload();
-                flImg.cartoon(gaussBmp, lapacienBmp);
                 flImg.setUndoList();
+                flImg.cartoon(gaussBmp, lapacienBmp);
                 flImg.setImageViewFromBitmap();
             }
         });
