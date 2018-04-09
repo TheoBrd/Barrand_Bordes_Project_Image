@@ -506,12 +506,8 @@ public class MainActivity extends AppCompatActivity {
                 flImg.laplacian();
                 Bitmap lapacienBmp = flImg.getBmp();
                 flImg.reload();
-<<<<<<< HEAD
-                flImg.cartoon(clusterBmp, lapacienBmp);
-=======
->>>>>>> 411ad982b51aa45e93b0e506783aa8fb2572c26a
                 flImg.setUndoList();
-                flImg.cartoon(gaussBmp, lapacienBmp);
+                flImg.cartoon(clusterBmp, lapacienBmp);
                 flImg.setImageViewFromBitmap();
             }
         });
