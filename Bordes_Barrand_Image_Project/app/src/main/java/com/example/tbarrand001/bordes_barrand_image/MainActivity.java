@@ -493,12 +493,12 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
-                flImg.gaussian(2);
-                Bitmap gaussBmp = flImg.getBmp();
+                flImg.clusteringCube(7);
+                Bitmap clusterBmp = flImg.getBmp();
                 flImg.laplacian();
                 Bitmap lapacienBmp = flImg.getBmp();
                 flImg.reload();
-                flImg.cartoon(gaussBmp, lapacienBmp);
+                flImg.cartoon(clusterBmp, lapacienBmp);
                 flImg.setUndoList();
                 flImg.setImageViewFromBitmap();
             }
@@ -513,7 +513,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
-                flImg.clustering();
+                flImg.clusteringCube(8);
                 flImg.setUndoList();
                 flImg.setImageViewFromBitmap();
             }

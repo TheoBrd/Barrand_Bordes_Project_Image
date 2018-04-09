@@ -730,7 +730,7 @@ public class FilteredImage {
 
         for(int p =0; p< pixelMapG.length; p++){
             if(red(pixelMapL[p])<126){
-                pixelMapG[p]= Color.rgb(0,0,0);
+                //pixelMapG[p]= Color.rgb(0,0,0);
             }
         }
 
@@ -806,7 +806,7 @@ public class FilteredImage {
 
     }
 
-    public void clustering(){
+    public void clusteringLisse(){
 
         int[] pixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
@@ -818,6 +818,14 @@ public class FilteredImage {
 
         this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
 
+    }
+
+    public void clusteringCube(int nbColor){
+        int[] pixelMap = new int[this.width *this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        ColorCube cc = new ColorCube(pixelMap);
+        cc.clustering(nbColor);
+        this.bmp.setPixels(cc.getPixelMap(), 0, this.width, 0,0, this.width, this.height);
     }
 
 
