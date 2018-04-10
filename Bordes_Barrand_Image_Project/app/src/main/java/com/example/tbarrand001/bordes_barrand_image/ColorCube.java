@@ -24,7 +24,7 @@ public class ColorCube {
     private String maxAxes;
     private int[] pixelMap;
     private int[] histo;
-    private static final int ITERATION_CLUSTER = 10;
+    private static final int ITERATION_CLUSTER = 15;
 
     ColorCube(int[] pixelMaptmp){
         this.pixelMap = pixelMaptmp;
@@ -154,25 +154,31 @@ public class ColorCube {
 
 
 
-    private double euclideanDist(int origin, int pixel){
-        double[] LabOrigin= new double[3];
-        double[] LabPixel = new double[3];
+    private double euclideanDist(double[] origin, double[] pixel){
 
-        RGBToLab(red(origin), green(origin), blue(origin), LabOrigin);
-        RGBToLab(red(pixel), green(pixel), blue(pixel), LabPixel);
 
-        return (((LabOrigin[0]-LabPixel[0])*(LabOrigin[0]-LabPixel[0])) +
-                ((LabOrigin[1]-LabPixel[1])*(LabOrigin[1]-LabPixel[1])) +
-                ((LabOrigin[2]-LabPixel[2])*(LabOrigin[2]-LabPixel[2])));
+        return (((origin[0]-pixel[0])*(origin[0]-pixel[0])) +
+                ((origin[1]-pixel[1])*(origin[1]-pixel[1])) +
+                ((origin[2]-pixel[2])*(origin[2]-pixel[2])));
     }
+
 
 
     public void clustering(int nbColor){
         //ce tableau contient la liste de point centraux
         int[] tabCenterCluster = new int [nbColor];
+        int iter=0;
 
         //cette liste contient les différents clusters
         ArrayList<ArrayList<Integer>> cluster = new ArrayList<ArrayList<Integer>>();
+        ArrayList<double[]> pixelMapLab = new ArrayList();
+        for (int pixel :pixelMap) {
+            double[] pixelLab = new double[3];
+            RGBToLab(red(pixel), green(pixel), blue(pixel), pixelLab);
+            pixelMapLab.add(pixelLab);
+        }
+
+
 
         //création des points aléatoirement
         for(int i =0; i<tabCenterCluster.length; i++){
@@ -184,33 +190,43 @@ public class ColorCube {
 
             cluster.add(new ArrayList<Integer>());
         }
+        ArrayList<double[]> centerClusterLab = new ArrayList();
 
-        /*tabCenterCluster[0]= Color.argb(255, 255,0,0);
-        tabCenterCluster[1]= Color.argb(50, 0,255,0);
-        cluster.add(new ArrayList<Integer>());
-        cluster.add(new ArrayList<Integer>());*/
+
 
         int iteration =0;
         while(iteration <ITERATION_CLUSTER){
 
-            //pour chaque pixel, je regarde sa distance avec les points, et garde la plus petite
-            //avant de ranger le pixel dans le cluster conrrespondant
-            for(int p=0; p<pixelMap.length;p++){
-                int numClust=0;
-                double distE=Double.POSITIVE_INFINITY;
-                for(int nb = 0; nb <tabCenterCluster.length; nb++){
-                    double distTmp = euclideanDist(tabCenterCluster[nb], pixelMap[p]);
-                    if(distE >= distTmp){
-                        distE = distTmp;
-                        numClust = nb;
-                    }
-                }
-                cluster.get(numClust).add(pixelMap[p]);
+
+            for (int center : tabCenterCluster) {
+                double[] pixelLab = new double[3];
+                RGBToLab(red(center), green(center), blue(center), pixelLab);
+                centerClusterLab.add(pixelLab);
             }
 
 
 
-            int cpt=0;
+            //pour chaque pixel, je regarde sa distance avec les points, et garde la plus petite
+            //avant de ranger le pixel dans le cluster conrrespondant
+            iter =0;
+            for( double[] pixel : pixelMapLab){
+                int numClust=0;
+                double distE=Double.POSITIVE_INFINITY;
+                int nb=0;
+                for(double[] center : centerClusterLab){
+                    double distTmp = euclideanDist(center, pixel);
+                    if(distE >= distTmp){
+                        distE = distTmp;
+                        numClust = nb;
+                    }
+                    nb++;
+                }
+                cluster.get(numClust).add(pixelMap[iter]);
+                iter++;
+            }
+
+
+            iter =0;
             for (ArrayList<Integer> arrayList: cluster){
                 if(arrayList.size()!=0){
                     int sumR=0;
@@ -224,30 +240,45 @@ public class ColorCube {
 
 
                     int sum= Color.rgb(sumR/arrayList.size(), sumG/arrayList.size(), sumB/arrayList.size());
-                    tabCenterCluster[cpt] = sum;
+                    tabCenterCluster[iter] = sum;
                 }
 
-                cpt++;
+                iter++;
             }
+
+            for (ArrayList<Integer> arrayList : cluster) {
+                arrayList.clear();
+            }
+            centerClusterLab.clear();
+
             iteration++;
         }
 
-        for (ArrayList<Integer> arrayList : cluster) {
-            arrayList.clear();
+
+
+
+        for (int center : tabCenterCluster) {
+            double[] pixelLab = new double[3];
+            RGBToLab(red(center), green(center), blue(center), pixelLab);
+            centerClusterLab.add(pixelLab);
         }
 
-        for(int p=0; p<pixelMap.length;p++){
+        iter=0;
+        for(double[] pixel : pixelMapLab){
             int numClust=0;
             double distE=Double.POSITIVE_INFINITY;
-            for(int nb = 0; nb <tabCenterCluster.length; nb++){
-                double distTmp =  euclideanDist(tabCenterCluster[nb], pixelMap[p]);
+            int nb=0;
+            for(double[] center : centerClusterLab){
+                double distTmp =  euclideanDist(center, pixel);
                 if(distE > distTmp){
                     distE = distTmp;
                     numClust = nb;
                 }
+                nb++;
             }
 
-            pixelMap[p]=tabCenterCluster[numClust];
+            pixelMap[iter]=tabCenterCluster[numClust];
+            iter++;
         }
     }
 
