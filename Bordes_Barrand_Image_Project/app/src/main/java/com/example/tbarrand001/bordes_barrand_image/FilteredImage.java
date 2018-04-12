@@ -146,6 +146,10 @@ public class FilteredImage {
         this.imageView.setImageBitmap(this.bmp);
     }
 
+    public void setBmp(Bitmap bmp) {
+        this.bmp = bmp;
+    }
+
     /**
      * Change the ImageView depends on the bitmap
      */
@@ -727,50 +731,6 @@ public class FilteredImage {
     }*/
 
 
-    public void ColorDodgeBlend(Bitmap source, Bitmap layer) {
-        Bitmap base = source.copy(Bitmap.Config.ARGB_8888, true);
-        Bitmap blend = layer.copy(Bitmap.Config.ARGB_8888, false);
-
-        IntBuffer buffBase = IntBuffer.allocate(base.getWidth() * base.getHeight());
-        base.copyPixelsToBuffer(buffBase);
-        buffBase.rewind();
-
-        IntBuffer buffBlend = IntBuffer.allocate(blend.getWidth() * blend.getHeight());
-        blend.copyPixelsToBuffer(buffBlend);
-        buffBlend.rewind();
-
-        IntBuffer buffOut = IntBuffer.allocate(base.getWidth() * base.getHeight());
-        buffOut.rewind();
-
-        while (buffOut.position() < buffOut.limit()) {
-            int filterInt = buffBlend.get();
-            int srcInt = buffBase.get();
-
-            int redValueFilter = Color.red(filterInt);
-            int greenValueFilter = Color.green(filterInt);
-            int blueValueFilter = Color.blue(filterInt);
-
-            int redValueSrc = Color.red(srcInt);
-            int greenValueSrc = Color.green(srcInt);
-            int blueValueSrc = Color.blue(srcInt);
-
-            int redValueFinal = colordodge(redValueFilter, redValueSrc);
-            int greenValueFinal = colordodge(greenValueFilter, greenValueSrc);
-            int blueValueFinal = colordodge(blueValueFilter, blueValueSrc);
-
-            int pixel = Color.argb(255, redValueFinal, greenValueFinal, blueValueFinal);
-
-            buffOut.put(pixel);
-        }
-
-        buffOut.rewind();
-
-        base.copyPixelsFromBuffer(buffOut);
-        blend.recycle();
-
-        this.reload();
-        this.bmp =base;
-    }
 
     private int colordodge(int in1, int in2) {
         float image = (float) in2;
@@ -780,23 +740,23 @@ public class FilteredImage {
     }
 
 
-    public void cartoon(Bitmap gauss, Bitmap lapla){
+    public void cartoon(Bitmap color, Bitmap edges){
 
 
-        int[] pixelMapG = new int[this.width *this.height];
-        gauss.getPixels(pixelMapG, 0, this.width, 0,0, this.width, this.height);
+        int[] pixelMapC = new int[this.width *this.height];
+        color.getPixels(pixelMapC, 0, this.width, 0,0, this.width, this.height);
 
-        int[] pixelMapL = new int[this.width *this.height];
-        lapla.getPixels(pixelMapL, 0, this.width, 0,0, this.width, this.height);
+        int[] pixelMapE = new int[this.width *this.height];
+        edges.getPixels(pixelMapE, 0, this.width, 0,0, this.width, this.height);
 
 
-        for(int p =0; p< pixelMapG.length; p++){
-            if(red(pixelMapL[p])<126){
-                pixelMapG[p]= Color.rgb(0,0,0);
+        for(int p =0; p< pixelMapC.length; p++){
+            if(red(pixelMapE[p])!=0){
+                pixelMapC[p]= Color.rgb(0,0,0);
             }
         }
 
-        this.bmp.setPixels(pixelMapG, 0, this.width, 0,0, this.width, this.height);
+        this.bmp.setPixels(pixelMapC, 0, this.width, 0,0, this.width, this.height);
     }
 
     public void clusteringCube(int nbColor){

@@ -3,12 +3,14 @@ package com.example.tbarrand001.bordes_barrand_image;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -23,6 +25,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,9 +53,13 @@ public class MainActivity extends AppCompatActivity {
     private static final int RESULT_CAMERA_REQUEST = 6;
 
 
+    private int test = -1;
+
+
     private int valueSKB;
     private SeekBar skb;
     private FilteredImage flImg;
+    private ProgressBar pb;
 
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
@@ -139,6 +146,10 @@ public class MainActivity extends AppCompatActivity {
         /** Initialize variables  **/
         flImg = new FilteredImage((ImageView) findViewById(R.id.imageView));
         skb = (SeekBar) findViewById(R.id.seekgreen);
+        pb = (ProgressBar) findViewById(R.id.waiting);
+        pb.setVisibility(View.GONE);
+
+
         //Hide seekBar, which is useful in only few cases
         skb.setVisibility(View.GONE);
         //This textView show the value of the seekBar's progress
@@ -492,6 +503,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         //Cartoon Button
         Button cartoonBut = (Button) findViewById(R.id.cartoon);
         cartoonBut.setOnClickListener(new View.OnClickListener() {
@@ -501,31 +513,47 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
-                flImg.clusteringCube(7);
-                Bitmap clusterBmp = flImg.getBmp();
-                flImg.laplacian();
-                Bitmap lapacienBmp = flImg.getBmp();
-                flImg.reload();
-                flImg.setUndoList();
-                flImg.cartoon(clusterBmp, lapacienBmp);
-                flImg.setImageViewFromBitmap();
+
+                MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                    @Override
+                    public void processFinish(FilteredImage filteredImage){
+                        flImg.setBmp(filteredImage.getBmp());
+                        flImg.setUndoList();
+                        flImg.setImageViewFromBitmap();
+                    }
+                });
+                myAsyncTask.execute("cartoon");
+
             }
         });
 
+
+
         // Button
-        Button meanButt = (Button) findViewById(R.id.mean);
-        meanButt.setOnClickListener(new View.OnClickListener() {
+        Button clusterBut = (Button) findViewById(R.id.mean);
+        clusterBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
-                flImg.clusteringCube(8);
-                flImg.setUndoList();
-                flImg.setImageViewFromBitmap();
+                MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                    @Override
+                    public void processFinish(FilteredImage filteredImage){
+                        flImg.setBmp(filteredImage.getBmp());
+                        flImg.setUndoList();
+                        flImg.setImageViewFromBitmap();
+                    }
+                });
+                myAsyncTask.execute("cluster");
+
+
             }
         });
+
 
     }
 
@@ -636,6 +664,8 @@ public class MainActivity extends AppCompatActivity {
     public void resizeBitmap(Bitmap bitmap) {
         Bitmap bmp = createScaledBitmap(bitmap, flImg.getWidth(), flImg.getHeight(), true);
     }
+
+
 
 
 }
