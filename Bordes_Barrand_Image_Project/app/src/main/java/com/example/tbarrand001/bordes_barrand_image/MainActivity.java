@@ -481,7 +481,6 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
-
                 MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
 
                     @Override
@@ -512,7 +511,9 @@ public class MainActivity extends AppCompatActivity {
                         flImg.setImageViewFromBitmap();
                     }
                 });
+                myAsyncTask.setContext(MainActivity.this);
                 myAsyncTask.execute("sepia");
+
             }
         });
 
@@ -547,6 +548,7 @@ public class MainActivity extends AppCompatActivity {
                         flImg.setImageViewFromBitmap();
                     }
                 });
+                myAsyncTask.setContext(MainActivity.this);
                 myAsyncTask.execute("invert");
             }
         });
@@ -602,7 +604,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
 
     }
 
