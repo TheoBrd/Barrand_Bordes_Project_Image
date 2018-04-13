@@ -3,12 +3,14 @@ package com.example.tbarrand001.bordes_barrand_image;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -23,6 +25,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,9 +53,14 @@ public class MainActivity extends AppCompatActivity {
     private static final int RESULT_CAMERA_REQUEST = 6;
 
 
+    private int test = -1;
+
+
     private int valueSKB;
     private SeekBar skb;
     private FilteredImage flImg;
+    private ProgressBar pb;
+    private String seakBarStat;
 
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
@@ -139,6 +147,11 @@ public class MainActivity extends AppCompatActivity {
         /** Initialize variables  **/
         flImg = new FilteredImage((ImageView) findViewById(R.id.imageView));
         skb = (SeekBar) findViewById(R.id.seekgreen);
+        seakBarStat= "none";
+        pb = (ProgressBar) findViewById(R.id.waiting);
+        pb.setVisibility(View.GONE);
+
+
         //Hide seekBar, which is useful in only few cases
         skb.setVisibility(View.GONE);
         //This textView show the value of the seekBar's progress
@@ -267,9 +280,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 valueSKB = i;
-                switch (skb.getMax()){
+                switch (seakBarStat){
                     //If SeekBar max =200, then we using Brightness
-                    case 200 :
+                    case "brightness" :
                         //center the seekBar progress in order to use negative values
                         valuePrintG.setText(String.valueOf(valueSKB -100));
                         flImg.reload();
@@ -280,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     //If SeekBar max =240, then we using Contrast
-                    case 240 :
+                    case "contrast" :
 
                         //center the seekBar progress in order to use negative values
                         valuePrintG.setText(String.valueOf(valueSKB -120));
@@ -289,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
 
                         flImg.contrast(valueSKB -120);
                         flImg.setImageViewFromBitmap();
+
                         break;
 
                     default:
@@ -324,8 +338,15 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
-                flImg.sobelConvolution();
-                flImg.setImageViewFromBitmap();
+                MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                    @Override
+                    public void processFinish(FilteredImage filteredImage){
+                        flImg.setBmp(filteredImage.getBmp());
+                        flImg.setImageViewFromBitmap();
+                    }
+                });
+                myAsyncTask.execute("sobel");
 
             }
         });
@@ -367,8 +388,15 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
-                flImg.laplacian();
-                flImg.setImageViewFromBitmap();
+                MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                    @Override
+                    public void processFinish(FilteredImage filteredImage){
+                        flImg.setBmp(filteredImage.getBmp());
+                        flImg.setImageViewFromBitmap();
+                    }
+                });
+                myAsyncTask.execute("laplacian");
             }
         });
 
@@ -383,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.VISIBLE);
                     skb.setProgress(100);
                 }
-
+                seakBarStat = "brightness";
                 //Set the max
                 if(skb.getMax()!=200){
                     skb.setMax(200);
@@ -401,6 +429,7 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.VISIBLE);
                     skb.setProgress(120);
                 }
+                seakBarStat = "contrast";
                 if(skb.getMax()!=240){
                     skb.setMax(240);
                     skb.setProgress(120);
@@ -417,8 +446,15 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
-                flImg.equalizationColor();
-                flImg.setImageViewFromBitmap();
+                MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                    @Override
+                    public void processFinish(FilteredImage filteredImage){
+                        flImg.setBmp(filteredImage.getBmp());
+                        flImg.setImageViewFromBitmap();
+                    }
+                });
+                myAsyncTask.execute("equalization");
             }
         });
 
@@ -445,12 +481,16 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
-                long t = (long) (System.nanoTime()*Math.pow(10,(-6)));
-                flImg.toGrayRS(flImg.getBmp(), getApplicationContext());
-                //flImg.toGray();
-                long t2 = (long) (System.nanoTime()*Math.pow(10,(-6)));
-                System.out.println("t = "+t+"     t2 = "+t2);
-                flImg.setImageViewFromBitmap();
+                MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                    @Override
+                    public void processFinish(FilteredImage filteredImage){
+                        flImg.setBmp(filteredImage.getBmp());
+                        flImg.setImageViewFromBitmap();
+                    }
+                });
+                myAsyncTask.setContext(MainActivity.this);
+                myAsyncTask.execute("gray");
             }
         });
 
@@ -463,12 +503,17 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
-                long t = (long) (System.nanoTime()*Math.pow(10,(-6)));
-                flImg.toSepiaRS(flImg.getBmp(), getApplicationContext());
-                //flImg.sepia();
-                long t2 = (long) (System.nanoTime()*Math.pow(10,(-6)));
-                System.out.println("t = "+t+"     t2 = "+t2);
-                flImg.setImageViewFromBitmap();
+                MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                    @Override
+                    public void processFinish(FilteredImage filteredImage){
+                        flImg.setBmp(filteredImage.getBmp());
+                        flImg.setImageViewFromBitmap();
+                    }
+                });
+                myAsyncTask.setContext(MainActivity.this);
+                myAsyncTask.execute("sepia");
+
             }
         });
 
@@ -495,14 +540,19 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
-                long t = (long) (System.nanoTime()*Math.pow(10,(-6)));
-                flImg.invertRS(flImg.getBmp(), getApplicationContext());
-                //flImg.invert();
-                long t2 = (long) (System.nanoTime()*Math.pow(10,(-6)));
-                System.out.println("t = "+t+"     t2 = "+t2);
-                flImg.setImageViewFromBitmap();
+                MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                    @Override
+                    public void processFinish(FilteredImage filteredImage){
+                        flImg.setBmp(filteredImage.getBmp());
+                        flImg.setImageViewFromBitmap();
+                    }
+                });
+                myAsyncTask.setContext(MainActivity.this);
+                myAsyncTask.execute("invert");
             }
         });
+
 
         //Cartoon Button
         Button cartoonBut = (Button) findViewById(R.id.cartoon);
@@ -513,43 +563,46 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
-                flImg.gaussian(2);
-                Bitmap gaussBmp = flImg.getBmp();
-                flImg.laplacian();
-                Bitmap lapacienBmp = flImg.getBmp();
-                flImg.reload();
                 flImg.setUndoList();
-                flImg.cartoon(gaussBmp, lapacienBmp);
-                flImg.setImageViewFromBitmap();
+                flImg.clusteringCube(8);
+                MyTask myAsyncTask=new MyTask( flImg, pb,new AsyncResponse(){
+
+                    @Override
+                    public void processFinish(FilteredImage filteredImage){
+                        flImg.setBmp(filteredImage.getBmp());
+                        flImg.setImageViewFromBitmap();
+                    }
+                });
+                myAsyncTask.execute("cartoon");
+
             }
         });
 
+
+
         // Button
-        Button meanButt = (Button) findViewById(R.id.mean);
-        meanButt.setOnClickListener(new View.OnClickListener() {
+        Button clusterBut = (Button) findViewById(R.id.mean);
+        clusterBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
-                flImg.clustering();
                 flImg.setUndoList();
-                flImg.setImageViewFromBitmap();
+                MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                    @Override
+                    public void processFinish(FilteredImage filteredImage){
+                        flImg.setBmp(filteredImage.getBmp());
+                        flImg.setImageViewFromBitmap();
+                    }
+                });
+                myAsyncTask.execute("cluster");
+
+
             }
         });
-
-        //PencilDrawing button
-        /*Button pencilDrawing = (Button) findViewById(R.id.pencilDrawing);
-        pencilDrawing.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                flImg.reload();
-                flImg.pencilDrawing(getApplicationContext(), 5, 2, 3);
-                flImg.setUndoList();
-                flImg.setImageViewFromBitmap();
-            }
-        });*/
 
     }
 
@@ -580,29 +633,61 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode==RESULT_POPUP_COLOR && resultCode==Activity.RESULT_OK){
             returnPopupValue = Integer.parseInt(data.getStringExtra("color"));
             flImg.setUndoList();
-            flImg.colorize(returnPopupValue);
-            flImg.setImageViewFromBitmap();
+            MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                @Override
+                public void processFinish(FilteredImage filteredImage){
+                    flImg.setBmp(filteredImage.getBmp());
+                    flImg.setImageViewFromBitmap();
+                }
+            });
+            myAsyncTask.setValue(returnPopupValue);
+            myAsyncTask.execute("colorize");
         }
 
         if(requestCode==RESULT_POPUP_ONE_COLOR && resultCode==Activity.RESULT_OK){
             returnPopupValue = Integer.parseInt(data.getStringExtra("color"));
             flImg.setUndoList();
-            flImg.oneColor(returnPopupValue);
-            flImg.setImageViewFromBitmap();
+            MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                @Override
+                public void processFinish(FilteredImage filteredImage){
+                    flImg.setBmp(filteredImage.getBmp());
+                    flImg.setImageViewFromBitmap();
+                }
+            });
+            myAsyncTask.setValue(returnPopupValue);
+            myAsyncTask.execute("oneColor");
         }
 
         if(requestCode==RESULT_POPUP_AVERAGE && resultCode==Activity.RESULT_OK){
             returnPopupValue = Integer.parseInt(data.getStringExtra("convol"));
             flImg.setUndoList();
-            flImg.averageConvolution(returnPopupValue);
-            flImg.setImageViewFromBitmap();
+            MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                @Override
+                public void processFinish(FilteredImage filteredImage){
+                    flImg.setBmp(filteredImage.getBmp());
+                    flImg.setImageViewFromBitmap();
+                }
+            });
+            myAsyncTask.setValue(returnPopupValue);
+            myAsyncTask.execute("average");
         }
 
         if(requestCode== RESULT_POPUP_GAUSSIAN && resultCode==Activity.RESULT_OK){
             returnPopupValue = Integer.parseInt(data.getStringExtra("convol"));
             flImg.setUndoList();
-            flImg.gaussian(returnPopupValue);
-            flImg.setImageViewFromBitmap();
+            MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
+
+                @Override
+                public void processFinish(FilteredImage filteredImage){
+                    flImg.setBmp(filteredImage.getBmp());
+                    flImg.setImageViewFromBitmap();
+                }
+            });
+            myAsyncTask.setValue(returnPopupValue);
+            myAsyncTask.execute("gaussian");
         }
     }
 
@@ -660,6 +745,8 @@ public class MainActivity extends AppCompatActivity {
     public void resizeBitmap(Bitmap bitmap) {
         Bitmap bmp = createScaledBitmap(bitmap, flImg.getWidth(), flImg.getHeight(), true);
     }
+
+
 
 
 }

@@ -84,6 +84,10 @@ public class FilteredImage {
         return bmp;
     }
 
+    public Bitmap getReset() {
+        return reset;
+    }
+
     /**
      * Update the LinkedList undo
      */
@@ -144,6 +148,10 @@ public class FilteredImage {
      */
     public void setImageViewFromBitmap(){
         this.imageView.setImageBitmap(this.bmp);
+    }
+
+    public void setBmp(Bitmap bmp) {
+        this.bmp = bmp;
     }
 
     /**
@@ -310,7 +318,9 @@ public class FilteredImage {
             pixelMap[p] = Color.rgb(r,g,b);
         }
 
-        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
 
     }
 
@@ -328,7 +338,9 @@ public class FilteredImage {
             hsv[0] = valueC;
             pixelMap[p]=HSVToColor(hsv);
         }
-        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
     public double[] convolution(int n, float[][] masque, int[] pixelMap, int p, int width){
@@ -429,7 +441,9 @@ public class FilteredImage {
             }
         }
 
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
 
@@ -519,7 +533,9 @@ public class FilteredImage {
             }
         }
 
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
     public void sobelConvolution( ){
@@ -574,7 +590,9 @@ public class FilteredImage {
             }
         }
 
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
     public void brightness(int n){
@@ -701,9 +719,66 @@ public class FilteredImage {
             }
         }
 
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
+<<<<<<< HEAD
+=======
+    /*public void toSepiaRS(Bitmap bmp, Context context) {
+        RenderScript rs = RenderScript.create(context);
+
+        Allocation input = Allocation.createFromBitmap(rs, bmp);
+        Allocation output = Allocation.createTyped(rs, input.getType());
+
+        ScriptC_sepia sepiaScript = new ScriptC_sepia(rs);
+
+        sepiaScript.forEach_toSepia(input, output);
+        output.copyTo(bmp);
+
+        input.destroy();
+        output.destroy();
+        sepiaScript.destroy();
+        rs.destroy();
+    }*/
+
+    public void sepia(){
+        int[] pixelMap = new int[this.width *this.height];
+        int[] finalPixelMap = new int[this.width *this.height];
+        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+
+        for (int p=0; p< pixelMap.length; p++) {
+            int red = red(pixelMap[p]);
+            int green = green(pixelMap[p]);
+            int blue = blue(pixelMap[p]);
+            int tRed = (int) (0.393*red + 0.769*green + 0.189*blue);
+            int tGreen = (int) (0.349*red + 0.686*green + 0.168*blue);
+            int tBlue = (int) (0.272*red + 0.534*green + 0.131*blue);
+
+            if (tRed > 255) {
+                tRed = 255;
+            } else if (tRed < 0) {
+                tRed = 0;
+            }
+            if (tGreen > 255) {
+                tGreen = 255;
+            } else if (tGreen < 0) {
+                tGreen = 0;
+            }
+            if (tBlue > 255) {
+                tBlue = 255;
+            } else if (blue < 0) {
+                tBlue = 0;
+            }
+            finalPixelMap[p] = Color.rgb( tRed,tGreen,tBlue);
+        }
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
+
+    }
+>>>>>>> d4a08296cf26af00b512d1ae3bf090f586e157a8
 
     public void invert() {
         int[] pixelMap = new int[this.width * this.height];
@@ -719,7 +794,9 @@ public class FilteredImage {
             int blueInvert = 255 - blue;
             pixelMap[p] = Color.rgb(redInvert, greenInvert, blueInvert);
         }
-        this.bmp.setPixels(pixelMap, 0, this.width, 0, 0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
     public void invertRS(Bitmap bmp, Context context) {
@@ -739,6 +816,7 @@ public class FilteredImage {
     }
 
 
+<<<<<<< HEAD
     /*public void ColorDodgeBlend(Bitmap source, Bitmap layer) {
         Bitmap base = source.copy(Bitmap.Config.ARGB_8888, true);
         Bitmap blend = layer.copy(Bitmap.Config.ARGB_8888, false);
@@ -783,6 +861,8 @@ public class FilteredImage {
         this.reload();
         this.bmp =base;
     }*/
+=======
+>>>>>>> d4a08296cf26af00b512d1ae3bf090f586e157a8
 
     private int colordodge(int in1, int in2) {
         float image = (float) in2;
@@ -799,111 +879,31 @@ public class FilteredImage {
     }*/
 
 
-    public void cartoon(Bitmap gauss, Bitmap lapla){
+    public void cartoon(Bitmap color, Bitmap edges){
 
 
-        int[] pixelMapG = new int[this.width *this.height];
-        gauss.getPixels(pixelMapG, 0, this.width, 0,0, this.width, this.height);
+        int[] pixelMapC = new int[this.width *this.height];
+        color.getPixels(pixelMapC, 0, this.width, 0,0, this.width, this.height);
 
-        int[] pixelMapL = new int[this.width *this.height];
-        lapla.getPixels(pixelMapL, 0, this.width, 0,0, this.width, this.height);
-
-//        int[] pixelMapWhite = new int[this.width *this.height];
-//        for (int p =0; p< pixelMapWhite.length; p++) {
-//            pixelMapWhite[p]= Color.rgb(255,255,255);
-//        }
+        int[] pixelMapE = new int[this.width *this.height];
+        edges.getPixels(pixelMapE, 0, this.width, 0,0, this.width, this.height);
 
 
-        for(int p =0; p< pixelMapG.length; p++){
-            if(red(pixelMapL[p])<126){
-                pixelMapG[p]= Color.rgb(0,0,0);
+        for(int p =0; p< pixelMapC.length; p++){
+            if(red(pixelMapE[p])<125){
+                pixelMapC[p]= Color.rgb(0,0,0);
             }
         }
 
-        this.bmp.setPixels(pixelMapG, 0, this.width, 0,0, this.width, this.height);
+        this.bmp.setPixels(pixelMapC, 0, this.width, 0,0, this.width, this.height);
     }
 
-
-
-    public void medianCut(){
+    public void clusteringCube(int nbColor){
         int[] pixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-
-        int[][] histoRGB = histogram(pixelMap);
-        int medianR, medianG, medianB, sumR, sumG, sumB;
-        sumR=sumG=sumB=0;
-
-        for(int i=0; i<256; i++){
-            sumR+= histoRGB[0][i];
-            sumG+= histoRGB[1][i];
-            sumB+= histoRGB[2][i];
-        }
-        medianR=sumR/2;
-        medianG=sumG/2;
-        medianB=sumB/2;
-
-        sumR=sumG=sumB=0;
-        int iter=0;
-        boolean findR, findG, findB;
-        findR=findG=findB=false;
-        while(!findR || !findG || !findB){
-
-            sumR+= histoRGB[0][iter];
-            sumG+= histoRGB[1][iter];
-            sumB+= histoRGB[2][iter];
-
-            if(sumR>=medianR){
-                findR=true;
-                medianR=iter;
-            }
-            if(sumG>=medianG){
-                findG=true;
-                medianG=iter;
-            }
-            if(sumB>=medianB){
-                findB=true;
-                medianB=iter;
-            }
-            iter++;
-        }
-
-        for (int p=0; p< pixelMap.length; p++) {
-            int red, green, blue;
-
-            if(red(pixelMap[p])<medianR){
-                red = histoRGB[0][medianR/2];
-            }else {
-                red = histoRGB[0][(256+medianR)/2];
-            }
-            if(green(pixelMap[p])<medianG){
-                green = histoRGB[1][medianG/2];
-            }else {
-                green = histoRGB[1][(256+medianG)/2];
-            }
-            if(blue(pixelMap[p])<medianB){
-                blue = histoRGB[2][medianB/2];
-            }else {
-                blue = histoRGB[2][(256+medianB)/2];
-            }
-
-            pixelMap[p]=Color.rgb(red,green,blue);
-        }
-        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-
-    }
-
-    public void clustering(){
-
-        int[] pixelMap = new int[this.width *this.height];
-        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-
-        for(int p =0; p< pixelMap.length; p++){
-            int tmp = pixelMap[p]/16;
-            pixelMap[p]=tmp*16;
-        }
-
-        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-
+        ColorCube cc = new ColorCube(pixelMap);
+        cc.clustering(nbColor);
+        this.bmp.setPixels(cc.getPixelMap(), 0, this.width, 0,0, this.width, this.height);
     }
 
 
