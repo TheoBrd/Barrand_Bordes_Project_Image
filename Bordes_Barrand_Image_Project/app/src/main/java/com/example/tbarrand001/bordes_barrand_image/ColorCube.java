@@ -101,12 +101,12 @@ public class ColorCube {
 
 
 
-    private double euclidianDist(int origine, int pixel){
+    /*private double euclidianDist(int origine, int pixel){
         double[] LabOrigine;
         double[] LabPixel;
-    }
+    }*/
 
-    public void clustering(int n){
+   /* public void clustering(int n){
         int[] tabCenterCluster = new int [n];
         ArrayList<ArrayList<Integer>> cluster = new ArrayList<ArrayList<Integer>>();
         for(int i =0; i<tabCenterCluster.length; i++){
@@ -165,5 +165,5 @@ public class ColorCube {
 
     public int[] getPixelMap() {
         return pixelMap;
-    }
+    }*/
 }

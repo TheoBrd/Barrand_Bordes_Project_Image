@@ -445,7 +445,11 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
+                long t = (long) (System.nanoTime()*Math.pow(10,(-6)));
                 flImg.toGrayRS(flImg.getBmp(), getApplicationContext());
+                //flImg.toGray();
+                long t2 = (long) (System.nanoTime()*Math.pow(10,(-6)));
+                System.out.println("t = "+t+"     t2 = "+t2);
                 flImg.setImageViewFromBitmap();
             }
         });
@@ -459,7 +463,11 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
-                flImg.sepia();
+                long t = (long) (System.nanoTime()*Math.pow(10,(-6)));
+                flImg.toSepiaRS(flImg.getBmp(), getApplicationContext());
+                //flImg.sepia();
+                long t2 = (long) (System.nanoTime()*Math.pow(10,(-6)));
+                System.out.println("t = "+t+"     t2 = "+t2);
                 flImg.setImageViewFromBitmap();
             }
         });
@@ -487,7 +495,11 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
-                flImg.invert();
+                long t = (long) (System.nanoTime()*Math.pow(10,(-6)));
+                flImg.invertRS(flImg.getBmp(), getApplicationContext());
+                //flImg.invert();
+                long t2 = (long) (System.nanoTime()*Math.pow(10,(-6)));
+                System.out.println("t = "+t+"     t2 = "+t2);
                 flImg.setImageViewFromBitmap();
             }
         });
@@ -526,6 +538,18 @@ public class MainActivity extends AppCompatActivity {
                 flImg.setImageViewFromBitmap();
             }
         });
+
+        //PencilDrawing button
+        /*Button pencilDrawing = (Button) findViewById(R.id.pencilDrawing);
+        pencilDrawing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                flImg.reload();
+                flImg.pencilDrawing(getApplicationContext(), 5, 2, 3);
+                flImg.setUndoList();
+                flImg.setImageViewFromBitmap();
+            }
+        });*/
 
     }
 
