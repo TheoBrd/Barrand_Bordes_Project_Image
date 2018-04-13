@@ -724,61 +724,6 @@ public class FilteredImage {
         this.bmp = bmp2;
     }
 
-<<<<<<< HEAD
-=======
-    /*public void toSepiaRS(Bitmap bmp, Context context) {
-        RenderScript rs = RenderScript.create(context);
-
-        Allocation input = Allocation.createFromBitmap(rs, bmp);
-        Allocation output = Allocation.createTyped(rs, input.getType());
-
-        ScriptC_sepia sepiaScript = new ScriptC_sepia(rs);
-
-        sepiaScript.forEach_toSepia(input, output);
-        output.copyTo(bmp);
-
-        input.destroy();
-        output.destroy();
-        sepiaScript.destroy();
-        rs.destroy();
-    }*/
-
-    public void sepia(){
-        int[] pixelMap = new int[this.width *this.height];
-        int[] finalPixelMap = new int[this.width *this.height];
-        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-
-        for (int p=0; p< pixelMap.length; p++) {
-            int red = red(pixelMap[p]);
-            int green = green(pixelMap[p]);
-            int blue = blue(pixelMap[p]);
-            int tRed = (int) (0.393*red + 0.769*green + 0.189*blue);
-            int tGreen = (int) (0.349*red + 0.686*green + 0.168*blue);
-            int tBlue = (int) (0.272*red + 0.534*green + 0.131*blue);
-
-            if (tRed > 255) {
-                tRed = 255;
-            } else if (tRed < 0) {
-                tRed = 0;
-            }
-            if (tGreen > 255) {
-                tGreen = 255;
-            } else if (tGreen < 0) {
-                tGreen = 0;
-            }
-            if (tBlue > 255) {
-                tBlue = 255;
-            } else if (blue < 0) {
-                tBlue = 0;
-            }
-            finalPixelMap[p] = Color.rgb( tRed,tGreen,tBlue);
-        }
-        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
-        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
-        this.bmp = bmp2;
-
-    }
->>>>>>> d4a08296cf26af00b512d1ae3bf090f586e157a8
 
     public void invert() {
         int[] pixelMap = new int[this.width * this.height];
@@ -815,68 +760,6 @@ public class FilteredImage {
         invertScript.destroy();
     }
 
-
-<<<<<<< HEAD
-    /*public void ColorDodgeBlend(Bitmap source, Bitmap layer) {
-        Bitmap base = source.copy(Bitmap.Config.ARGB_8888, true);
-        Bitmap blend = layer.copy(Bitmap.Config.ARGB_8888, false);
-
-        IntBuffer buffBase = IntBuffer.allocate(base.getWidth() * base.getHeight());
-        base.copyPixelsToBuffer(buffBase);
-        buffBase.rewind();
-
-        IntBuffer buffBlend = IntBuffer.allocate(blend.getWidth() * blend.getHeight());
-        blend.copyPixelsToBuffer(buffBlend);
-        buffBlend.rewind();
-
-        IntBuffer buffOut = IntBuffer.allocate(base.getWidth() * base.getHeight());
-        buffOut.rewind();
-
-        while (buffOut.position() < buffOut.limit()) {
-            int filterInt = buffBlend.get();
-            int srcInt = buffBase.get();
-
-            int redValueFilter = Color.red(filterInt);
-            int greenValueFilter = Color.green(filterInt);
-            int blueValueFilter = Color.blue(filterInt);
-
-            int redValueSrc = Color.red(srcInt);
-            int greenValueSrc = Color.green(srcInt);
-            int blueValueSrc = Color.blue(srcInt);
-
-            int redValueFinal = colordodge(redValueFilter, redValueSrc);
-            int greenValueFinal = colordodge(greenValueFilter, greenValueSrc);
-            int blueValueFinal = colordodge(blueValueFilter, blueValueSrc);
-
-            int pixel = Color.argb(255, redValueFinal, greenValueFinal, blueValueFinal);
-
-            buffOut.put(pixel);
-        }
-
-        buffOut.rewind();
-
-        base.copyPixelsFromBuffer(buffOut);
-        blend.recycle();
-
-        this.reload();
-        this.bmp =base;
-    }*/
-=======
->>>>>>> d4a08296cf26af00b512d1ae3bf090f586e157a8
-
-    private int colordodge(int in1, int in2) {
-        float image = (float) in2;
-        float mask = (float) in1;
-        return ((int) ((image == 255) ? image : Math.min(255, (((long) mask << 8) / (255 - image)))));
-
-    }
-
-    /*public void pencilDrawing(Context context, int n, int in1, int in2) {
-        toGrayRS(this.bmp, context);
-        invert();
-        colordodge(in1, in2);
-        //gaussian(n);
-    }*/
 
 
     public void cartoon(Bitmap color, Bitmap edges){
