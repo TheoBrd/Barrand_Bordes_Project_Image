@@ -153,11 +153,6 @@ public class ColorCube {
     }
 
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 53b67e6083e77252dbc29a51058bd2254e43e641
     private double euclideanDist(double[] origin, double[] pixel){
 
 

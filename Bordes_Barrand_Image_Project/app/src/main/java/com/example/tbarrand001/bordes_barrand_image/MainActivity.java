@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private int valueSKB;
+    private int lastValueSKB;
     private SeekBar skb;
     private FilteredImage flImg;
     private ProgressBar pb;
@@ -157,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
         //This textView show the value of the seekBar's progress
         final TextView valuePrintG = (TextView) findViewById(R.id.seekbarValueG);
         this.valueSKB = skb.getProgress();
+        this.lastValueSKB = 0;
         valuePrintG.setText(String.valueOf(this.valueSKB));
         this.compare = (Button)findViewById(R.id.compareBut);
         this.compare.setOnTouchListener(new View.OnTouchListener() {
@@ -444,6 +446,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
+                    seakBarStat ="none";
                 }
                 flImg.setUndoList();
                 MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
@@ -559,12 +562,11 @@ public class MainActivity extends AppCompatActivity {
         cartoonBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
-                flImg.clusteringCube(8);
+
                 MyTask myAsyncTask=new MyTask( flImg, pb,new AsyncResponse(){
 
                     @Override
@@ -573,7 +575,6 @@ public class MainActivity extends AppCompatActivity {
                         flImg.setImageViewFromBitmap();
                     }
                 });
-                myAsyncTask.setBmpUsed(flImg.getBmp());
                 myAsyncTask.execute("cartoon");
 
             }
@@ -586,7 +587,6 @@ public class MainActivity extends AppCompatActivity {
         clusterBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
