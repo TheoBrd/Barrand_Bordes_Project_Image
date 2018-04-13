@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar skb;
     private FilteredImage flImg;
     private ProgressBar pb;
+    private String seakBarStat;
 
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
         /** Initialize variables  **/
         flImg = new FilteredImage((ImageView) findViewById(R.id.imageView));
         skb = (SeekBar) findViewById(R.id.seekgreen);
+        seakBarStat= "none";
         pb = (ProgressBar) findViewById(R.id.waiting);
         pb.setVisibility(View.GONE);
 
@@ -278,9 +280,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 valueSKB = i;
-                switch (skb.getMax()){
+                switch (seakBarStat){
                     //If SeekBar max =200, then we using Brightness
-                    case 200 :
+                    case "brightness" :
                         //center the seekBar progress in order to use negative values
                         valuePrintG.setText(String.valueOf(valueSKB -100));
                         flImg.reload();
@@ -291,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     //If SeekBar max =240, then we using Contrast
-                    case 240 :
+                    case "contrast" :
 
                         //center the seekBar progress in order to use negative values
                         valuePrintG.setText(String.valueOf(valueSKB -120));
@@ -300,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
 
                         flImg.contrast(valueSKB -120);
                         flImg.setImageViewFromBitmap();
+
                         break;
 
                     default:
@@ -408,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.VISIBLE);
                     skb.setProgress(100);
                 }
-
+                seakBarStat = "brightness";
                 //Set the max
                 if(skb.getMax()!=200){
                     skb.setMax(200);
@@ -426,6 +429,7 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.VISIBLE);
                     skb.setProgress(120);
                 }
+                seakBarStat = "contrast";
                 if(skb.getMax()!=240){
                     skb.setMax(240);
                     skb.setProgress(120);
@@ -558,6 +562,7 @@ public class MainActivity extends AppCompatActivity {
                     skb.setVisibility(View.GONE);
                 }
                 flImg.setUndoList();
+                flImg.clusteringCube(8);
                 MyTask myAsyncTask=new MyTask( flImg, pb,new AsyncResponse(){
 
                     @Override

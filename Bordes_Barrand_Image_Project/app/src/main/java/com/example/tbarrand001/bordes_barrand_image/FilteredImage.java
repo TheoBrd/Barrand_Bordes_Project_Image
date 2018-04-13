@@ -84,6 +84,10 @@ public class FilteredImage {
         return bmp;
     }
 
+    public Bitmap getReset() {
+        return reset;
+    }
+
     /**
      * Update the LinkedList undo
      */
@@ -767,7 +771,7 @@ public class FilteredImage {
 
 
         for(int p =0; p< pixelMapC.length; p++){
-            if(red(pixelMapE[p])!=0){
+            if(red(pixelMapE[p])<125){
                 pixelMapC[p]= Color.rgb(0,0,0);
             }
         }

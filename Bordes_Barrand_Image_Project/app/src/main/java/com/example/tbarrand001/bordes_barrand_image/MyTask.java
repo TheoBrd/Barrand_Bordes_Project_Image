@@ -98,7 +98,9 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
             case "cartoon":
                 flImg.clusteringCube(8);
                 Bitmap clusterBmp = flImg.getBmp().copy(Bitmap.Config.ARGB_8888, true);
-                flImg.sobelConvolution();
+                flImg.setBmp(flImg.getReset());
+                flImg.gaussian(3);
+                flImg.laplacian();
                 Bitmap edgeBmp = flImg.getBmp();
                 flImg.cartoon(clusterBmp, edgeBmp);
                 break;
