@@ -185,7 +185,7 @@ public class FilteredImage {
     /**
      * Change the ImageView's Bitmap in a shade of gray
      */
-    /*public void toGray(){
+    public void toGray(){
 
         int[] pixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
@@ -201,7 +201,8 @@ public class FilteredImage {
 
         }
         this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-    }*/
+    }
+
 
     /**
      * Change the ImageView's Bitmap in sepia using RenderScript
@@ -226,7 +227,7 @@ public class FilteredImage {
     /**
      * Change the ImageView's Bitmap in sepia
      */
-    /*public void sepia(){
+    public void sepia(){
         int[] pixelMap = new int[this.width *this.height];
         int[] finalPixelMap = new int[this.width *this.height];
         this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
@@ -258,7 +259,7 @@ public class FilteredImage {
         }
         this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
 
-    }*/
+    }
 
     /**
      *
@@ -779,11 +780,11 @@ public class FilteredImage {
 
 
         for(int p =0; p< pixelMapC.length; p++){
+
             if(red(pixelMapE[p])<125){
                 pixelMapC[p]= Color.rgb(0,0,0);
             }
         }
-
         this.bmp.setPixels(pixelMapC, 0, this.width, 0,0, this.width, this.height);
     }
 

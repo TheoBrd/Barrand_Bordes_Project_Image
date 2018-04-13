@@ -54,7 +54,6 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
 
     @Override
     protected FilteredImage doInBackground(String... filterType) {
-        long t, t2;
         switch (filterType[0]){
 
             case "average":
@@ -78,18 +77,13 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
                 break;
 
             case "gray":
-                t = (long) (System.nanoTime()*Math.pow(10,(-6)));
-                flImg.toGrayRS(flImg.getBmp(), this.context);
-                t2 = (long) (System.nanoTime()*Math.pow(10,(-6)));
-                System.out.println("t = "+t+"     t2 = "+t2);
+                //flImg.toGrayRS(flImg.getBmp(), this.context);
+                flImg.toGray();
                 break;
 
             case "sepia":
-                t = (long) (System.nanoTime()*Math.pow(10,(-6)));
                 flImg.toSepiaRS(flImg.getBmp(), context);
                 //flImg.sepia();
-                t2 = (long) (System.nanoTime()*Math.pow(10,(-6)));
-                System.out.println("t = "+t+"     t2 = "+t2);
                 break;
 
             case "colorize":
@@ -105,12 +99,8 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
                 break;
 
             case "invert":
-                t = (long) (System.nanoTime()*Math.pow(10,(-6)));
                 flImg.invertRS(flImg.getBmp(), context);
                 //flImg.invert();
-                t2 = (long) (System.nanoTime()*Math.pow(10,(-6)));
-                System.out.println("t = "+t+"     t2 = "+t2);
-                flImg.setImageViewFromBitmap();
                 break;
 
             case "cartoon":
