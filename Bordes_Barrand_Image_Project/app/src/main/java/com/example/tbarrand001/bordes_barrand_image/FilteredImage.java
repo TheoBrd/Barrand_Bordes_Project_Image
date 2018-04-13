@@ -768,7 +768,6 @@ public class FilteredImage {
 
     }
 
-
     public void cartoon(Bitmap color, Bitmap edges){
 
 

@@ -18,6 +18,7 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
     private FilteredImage flImg;
     private AsyncResponse delegate=null;
     private int value;
+    private Bitmap bmpUsed;
     private Context context;
 
 
@@ -29,6 +30,7 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
         this.progress = progressBar;
         this.context = null;
         this.value=-1;
+        this.bmpUsed = null;
     }
 
     public void setContext(Context context){
@@ -40,6 +42,9 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
         this.value=value;
     }
 
+    public void setBmpUsed(Bitmap bmpUsed) {
+        this.bmpUsed = bmpUsed;
+    }
 
     protected void onPreExecute() {
         super.onPreExecute();
@@ -109,13 +114,10 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
                 break;
 
             case "cartoon":
-                flImg.clusteringCube(8);
-                Bitmap clusterBmp = flImg.getBmp().copy(Bitmap.Config.ARGB_8888, true);
-                flImg.setBmp(flImg.getReset());
+
                 flImg.gaussian(3);
                 flImg.laplacian();
-                Bitmap edgeBmp = flImg.getBmp();
-                flImg.cartoon(clusterBmp, edgeBmp);
+                flImg.cartoon(bmpUsed, flImg.getBmp());
                 break;
 
             default:

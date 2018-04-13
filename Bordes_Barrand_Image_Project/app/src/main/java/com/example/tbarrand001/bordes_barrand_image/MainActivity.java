@@ -573,6 +573,7 @@ public class MainActivity extends AppCompatActivity {
                         flImg.setImageViewFromBitmap();
                     }
                 });
+                myAsyncTask.setBmpUsed(flImg.getBmp());
                 myAsyncTask.execute("cartoon");
 
             }
