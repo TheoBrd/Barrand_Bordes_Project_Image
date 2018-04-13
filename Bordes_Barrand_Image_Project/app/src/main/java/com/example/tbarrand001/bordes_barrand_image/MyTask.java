@@ -1,5 +1,7 @@
 package com.example.tbarrand001.bordes_barrand_image;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -15,6 +17,8 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
     private ProgressBar progress;
     private FilteredImage flImg;
     private AsyncResponse delegate=null;
+    private int value;
+    private Context context;
 
 
 
@@ -22,9 +26,19 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
     MyTask(FilteredImage flmImg, ProgressBar progressBar, AsyncResponse delegate){
         this.flImg = flmImg;
         this.delegate = delegate;
-        progress = progressBar;
+        this.progress = progressBar;
+        this.context = null;
+        this.value=-1;
     }
 
+    public void setContext(Context context){
+        this.context=context;
+    }
+
+
+    public void setValue(int value){
+        this.value=value;
+    }
 
 
     protected void onPreExecute() {
@@ -36,8 +50,49 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
     @Override
     protected FilteredImage doInBackground(String... filterType) {
         switch (filterType[0]){
+
+            case "average":
+                flImg.averageConvolution(value);
+                break;
+
+            case "gaussian":
+                flImg.gaussian(value);
+                break;
+
+            case "equalization":
+                flImg.equalizationColor();
+                break;
+
+            case "sobel":
+                flImg.sobelConvolution();
+                break;
+
+            case "laplacian":
+                flImg.laplacian();
+                break;
+
+            case "gray":
+                flImg.toGrayRS(flImg.getBmp(), this.context);
+                break;
+
+            case "sepia":
+                flImg.sepia();
+                break;
+
+            case "colorize":
+                flImg.colorize(value);
+                break;
+
+            case "oneColor":
+                flImg.oneColor(value);
+                break;
+
             case "cluster":
                 flImg.clusteringCube(8);
+                break;
+
+            case "invert":
+                flImg.invert();
                 break;
 
             case "cartoon":

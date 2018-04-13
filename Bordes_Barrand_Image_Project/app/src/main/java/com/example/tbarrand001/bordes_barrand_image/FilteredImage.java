@@ -257,7 +257,9 @@ public class FilteredImage {
             pixelMap[p] = Color.rgb(r,g,b);
         }
 
-        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
 
     }
 
@@ -275,7 +277,9 @@ public class FilteredImage {
             hsv[0] = valueC;
             pixelMap[p]=HSVToColor(hsv);
         }
-        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
     public double[] convolution(int n, float[][] masque, int[] pixelMap, int p, int width){
@@ -376,7 +380,9 @@ public class FilteredImage {
             }
         }
 
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
 
@@ -466,7 +472,9 @@ public class FilteredImage {
             }
         }
 
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
     public void sobelConvolution( ){
@@ -521,7 +529,9 @@ public class FilteredImage {
             }
         }
 
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
     public void brightness(int n){
@@ -648,7 +658,9 @@ public class FilteredImage {
             }
         }
 
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
     /*public void toSepiaRS(Bitmap bmp, Context context) {
@@ -698,7 +710,9 @@ public class FilteredImage {
             }
             finalPixelMap[p] = Color.rgb( tRed,tGreen,tBlue);
         }
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
 
     }
 
@@ -716,7 +730,9 @@ public class FilteredImage {
             int blueInvert = 255 - blue;
             pixelMap[p] = Color.rgb(redInvert, greenInvert, blueInvert);
         }
-        this.bmp.setPixels(pixelMap, 0, this.width, 0, 0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
     }
 
     /*public void invert() {
