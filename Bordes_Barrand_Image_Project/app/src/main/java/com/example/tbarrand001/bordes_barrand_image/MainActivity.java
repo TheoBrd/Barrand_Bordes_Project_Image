@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private int valueSKB;
-    private int lastValueSKB;
+    private boolean firstClick;
     private SeekBar skb;
     private FilteredImage flImg;
     private ProgressBar pb;
@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         seakBarStat= "none";
         pb = (ProgressBar) findViewById(R.id.waiting);
         pb.setVisibility(View.GONE);
+        firstClick = true;
 
 
         //Hide seekBar, which is useful in only few cases
@@ -158,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
         //This textView show the value of the seekBar's progress
         final TextView valuePrintG = (TextView) findViewById(R.id.seekbarValueG);
         this.valueSKB = skb.getProgress();
-        this.lastValueSKB = 0;
         valuePrintG.setText(String.valueOf(this.valueSKB));
         this.compare = (Button)findViewById(R.id.compareBut);
         this.compare.setOnTouchListener(new View.OnTouchListener() {
@@ -276,7 +276,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
         /**Apply change when using the SeekBar**/
         skb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
@@ -287,8 +286,11 @@ public class MainActivity extends AppCompatActivity {
                     case "brightness" :
                         //center the seekBar progress in order to use negative values
                         valuePrintG.setText(String.valueOf(valueSKB -100));
-                        flImg.reload();
-                        flImg.setUndoList();
+                        if(!firstClick){
+                            flImg.setBmp(flImg.getUndoList());
+                        }else {
+                            firstClick=false;
+                        }
                         flImg.brightness(valueSKB -100);
                         flImg.setImageViewFromBitmap();
 
@@ -299,9 +301,11 @@ public class MainActivity extends AppCompatActivity {
 
                         //center the seekBar progress in order to use negative values
                         valuePrintG.setText(String.valueOf(valueSKB -120));
-                        flImg.reload();
-                        flImg.setUndoList();
-
+                        if(!firstClick){
+                            flImg.setBmp(flImg.getUndoList());
+                        }else {
+                            firstClick=false;
+                        }
                         flImg.contrast(valueSKB -120);
                         flImg.setImageViewFromBitmap();
 
@@ -407,18 +411,21 @@ public class MainActivity extends AppCompatActivity {
         brightBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //flImg.reload();
+
+                flImg.setUndoList();
+                firstClick = true;
                 //Display the SeekBar and set progress in the center
                 if(skb.getVisibility()==View.GONE){
                     skb.setVisibility(View.VISIBLE);
-                    skb.setProgress(100);
                 }
+
                 seakBarStat = "brightness";
                 //Set the max
                 if(skb.getMax()!=200){
                     skb.setMax(200);
-                    skb.setProgress(100);
                 }
+                skb.setProgress(skb.getMax()/2);
+
             }
         });
 
@@ -427,15 +434,16 @@ public class MainActivity extends AppCompatActivity {
         contrastBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                flImg.setUndoList();
+                firstClick = true;
                 if(skb.getVisibility()==View.GONE){
                     skb.setVisibility(View.VISIBLE);
-                    skb.setProgress(120);
                 }
                 seakBarStat = "contrast";
                 if(skb.getMax()!=240){
                     skb.setMax(240);
-                    skb.setProgress(120);
                 }
+                skb.setProgress(skb.getMax()/2);
             }
         });
 

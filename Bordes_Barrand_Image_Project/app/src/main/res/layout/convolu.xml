@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="37dp"
         android:layout_marginTop="16dp"
-        android:max="15"
+        android:max="14"
         android:progress="0"
         android:progressTint="#931a1a"
         android:thumbTint="#6b0a0a"

@@ -29,12 +29,12 @@ public class PopUpConvolution extends PopUp {
 
 
 
-        getTextView().setText(String.valueOf(getSkb().getProgress()));
+        getTextView().setText(String.valueOf(getSkb().getProgress()+1));
 
         getSkb().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                getTextView().setText(String.valueOf(progress));
+                getTextView().setText(String.valueOf(progress+1));
             }
 
             @Override
@@ -53,7 +53,7 @@ public class PopUpConvolution extends PopUp {
             @Override
             public void onClick(View v) {
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("convol",String.valueOf(getSkb().getProgress())); // data is the value you need in parent
+                returnIntent.putExtra("convol",String.valueOf(getSkb().getProgress() +1 )); // data is the value you need in parent
                 setResult(Activity.RESULT_OK,returnIntent);
                 finish();
             }
