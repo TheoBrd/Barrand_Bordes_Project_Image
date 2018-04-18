@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private int valueSKB;
+    private int lastValueSKB;
     private SeekBar skb;
     private FilteredImage flImg;
     private ProgressBar pb;
@@ -157,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
         //This textView show the value of the seekBar's progress
         final TextView valuePrintG = (TextView) findViewById(R.id.seekbarValueG);
         this.valueSKB = skb.getProgress();
+        this.lastValueSKB = 0;
         valuePrintG.setText(String.valueOf(this.valueSKB));
         this.compare = (Button)findViewById(R.id.compareBut);
         this.compare.setOnTouchListener(new View.OnTouchListener() {
@@ -282,11 +284,21 @@ public class MainActivity extends AppCompatActivity {
                 valueSKB = i;
                 switch (seakBarStat){
                     //If SeekBar max =200, then we using Brightness
-                    case "brightness" :
+                    case "inBrightness" :
                         //center the seekBar progress in order to use negative values
                         valuePrintG.setText(String.valueOf(valueSKB -100));
-                        flImg.reload();
-                        flImg.setUndoList();
+                        flImg.setBmp(flImg.getUndoList());
+                        //flImg.setUndoList();
+                        flImg.brightness(valueSKB -100);
+                        flImg.setImageViewFromBitmap();
+
+                        break;
+
+                    case "brightness" :
+                        valuePrintG.setText(String.valueOf(valueSKB -100));
+                        //flImg.setUndoList();
+                        Bitmap im = flImg.getUndoList();
+                        flImg.setBmp(im);
                         flImg.brightness(valueSKB -100);
                         flImg.setImageViewFromBitmap();
 
@@ -337,6 +349,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE ){
                     skb.setVisibility(View.GONE);
                 }
+                seakBarStat ="none";
                 flImg.setUndoList();
                 MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
 
@@ -359,6 +372,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                seakBarStat ="none";
                 //Call the PopUp to get the value (here the size) of the convolution masque
                 Intent popupC = new Intent(MainActivity.this, PopUpConvolution.class);
                 startActivityForResult(popupC, RESULT_POPUP_AVERAGE);
@@ -372,7 +386,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
+
                 }
+                seakBarStat ="none";
                 //Call the PopUp to get the value (here the size) of the convolution masque
                 Intent popupC = new Intent(MainActivity.this, PopUpConvolution.class);
                 startActivityForResult(popupC, RESULT_POPUP_GAUSSIAN);
@@ -387,6 +403,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                seakBarStat ="none";
                 flImg.setUndoList();
                 MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
 
@@ -406,17 +423,33 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //flImg.reload();
+                flImg.setUndoList();
                 //Display the SeekBar and set progress in the center
                 if(skb.getVisibility()==View.GONE){
                     skb.setVisibility(View.VISIBLE);
                     skb.setProgress(100);
                 }
+//                if (seakBarStat != "inBrightness"){
+//                    seakBarStat = "brightness";
+//                }
+//                if (seakBarStat == "inBrightness") {
+//                    //Set the max
+//                    if(skb.getMax()!=200){
+//                        skb.setMax(200);
+//                        skb.setProgress(100);
+//                    }
+//                }
+//                else {
                 seakBarStat = "brightness";
                 //Set the max
-                if(skb.getMax()!=200){
+                if(skb.getMax()!=200) {
                     skb.setMax(200);
                     skb.setProgress(100);
                 }
+
+                //seakBarStat = "inBrightness";
+
+
             }
         });
 
@@ -425,6 +458,7 @@ public class MainActivity extends AppCompatActivity {
         contrastBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                flImg.setUndoList();
                 if(skb.getVisibility()==View.GONE){
                     skb.setVisibility(View.VISIBLE);
                     skb.setProgress(120);
@@ -445,6 +479,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                seakBarStat ="none";
                 flImg.setUndoList();
                 MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
 
@@ -466,6 +501,8 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                seakBarStat ="none";
+                flImg.setUndoList();
                 Intent popupC = new Intent(MainActivity.this, PopUpColor.class);
                 startActivityForResult(popupC, RESULT_POPUP_COLOR);
 
@@ -480,6 +517,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                seakBarStat ="none";
                 flImg.setUndoList();
                 MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
 
@@ -502,6 +540,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                seakBarStat ="none";
                 flImg.setUndoList();
                 MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
 
@@ -525,6 +564,8 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                seakBarStat ="none";
+                flImg.setUndoList();
                 Intent popupC = new Intent(MainActivity.this, PopUpColor.class);
                 startActivityForResult(popupC, RESULT_POPUP_ONE_COLOR);
 
@@ -539,6 +580,7 @@ public class MainActivity extends AppCompatActivity {
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                seakBarStat ="none";
                 flImg.setUndoList();
                 MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
 
@@ -559,12 +601,12 @@ public class MainActivity extends AppCompatActivity {
         cartoonBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                seakBarStat ="none";
                 flImg.setUndoList();
-                flImg.clusteringCube(8);
+
                 MyTask myAsyncTask=new MyTask( flImg, pb,new AsyncResponse(){
 
                     @Override
@@ -573,7 +615,6 @@ public class MainActivity extends AppCompatActivity {
                         flImg.setImageViewFromBitmap();
                     }
                 });
-                myAsyncTask.setBmpUsed(flImg.getBmp());
                 myAsyncTask.execute("cartoon");
 
             }
@@ -586,10 +627,10 @@ public class MainActivity extends AppCompatActivity {
         clusterBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flImg.reload();
                 if(skb.getVisibility()==View.VISIBLE){
                     skb.setVisibility(View.GONE);
                 }
+                seakBarStat ="none";
                 flImg.setUndoList();
                 MyTask myAsyncTask=new MyTask( flImg, pb, new AsyncResponse(){
 

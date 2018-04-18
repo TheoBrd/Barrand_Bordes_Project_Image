@@ -82,8 +82,8 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
                 break;
 
             case "sepia":
-                flImg.toSepiaRS(flImg.getBmp(), context);
-                //flImg.sepia();
+                //flImg.toSepiaRS(flImg.getBmp(), context);
+                flImg.sepia();
                 break;
 
             case "colorize":
@@ -104,9 +104,11 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
                 break;
 
             case "cartoon":
-
+                flImg.clusteringCube(8);
+                bmpUsed = flImg.getBmp().copy(Bitmap.Config.ARGB_8888, true );
+                flImg.setBmp(flImg.getReset());
                 flImg.gaussian(3);
-                flImg.laplacian();
+                flImg.sobelConvolution();
                 flImg.cartoon(bmpUsed, flImg.getBmp());
                 break;
 
