@@ -98,7 +98,10 @@ public class FilteredImage {
     public Bitmap getUndoList() {
         return this.undo.getLast();
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> a13aa597d0aab028cf69081268b4787c6b5bb754
     /**
      * Clear the LinkedList undo
      */
@@ -651,7 +654,9 @@ public class FilteredImage {
 
             finalPixelMap[p]=Color.rgb(red,green,blue);
         }
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
 
     }
 
@@ -694,7 +699,9 @@ public class FilteredImage {
             finalPixelMap[p]=Color.rgb((int)red,(int)green,(int)blue);
         }
 
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        Bitmap bmp2 = this.bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmp2.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
+        this.bmp = bmp2;
 
     }
 
