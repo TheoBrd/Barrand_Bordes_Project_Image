@@ -1,7 +1,6 @@
 package com.example.tbarrand001.bordes_barrand_image;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -56,6 +55,16 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
     protected FilteredImage doInBackground(String... filterType) {
         switch (filterType[0]){
 
+            case "gray":
+                flImg.toGrayRS(flImg.getBmp(), this.context);
+                //flImg.toGray();
+                break;
+
+            case "sepia":
+                flImg.toSepiaRS(flImg.getBmp(), context);
+                //flImg.sepia();
+                break;
+
             case "average":
                 flImg.averageConvolution(value);
                 break;
@@ -74,16 +83,6 @@ public class MyTask extends AsyncTask<String,Void,FilteredImage>{
 
             case "laplacian":
                 flImg.laplacian();
-                break;
-
-            case "gray":
-                //flImg.toGrayRS(flImg.getBmp(), this.context);
-                flImg.toGray();
-                break;
-
-            case "sepia":
-                //flImg.toSepiaRS(flImg.getBmp(), context);
-                flImg.sepia();
                 break;
 
             case "colorize":

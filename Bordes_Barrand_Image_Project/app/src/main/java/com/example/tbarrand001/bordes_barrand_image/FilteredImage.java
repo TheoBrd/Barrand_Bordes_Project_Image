@@ -6,16 +6,10 @@ import android.graphics.BlurMaskFilter;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.renderscript.RenderScript;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 
-import java.nio.IntBuffer;
 import java.util.LinkedList;
 
-import static android.graphics.Bitmap.createBitmap;
-import static android.graphics.Bitmap.createScaledBitmap;
 import static android.graphics.Color.HSVToColor;
 import static android.graphics.Color.RGBToHSV;
 import static android.graphics.Color.blue;
@@ -95,13 +89,13 @@ public class FilteredImage {
         undo.add(this.bmp.copy(Bitmap.Config.ARGB_8888,true));
     }
 
+    /**
+     * Get the last added Bitmap
+     */
     public Bitmap getUndoList() {
         return this.undo.getLast();
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> a13aa597d0aab028cf69081268b4787c6b5bb754
     /**
      * Clear the LinkedList undo
      */
@@ -190,28 +184,6 @@ public class FilteredImage {
     }
 
     /**
-     * Change the ImageView's Bitmap in a shade of gray
-     */
-    public void toGray(){
-
-        int[] pixelMap = new int[this.width *this.height];
-        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-
-        for (int p=0; p< pixelMap.length; p++){
-
-            int r = red(pixelMap[p]);
-            int g = green(pixelMap[p]);
-            int b = blue(pixelMap[p]);
-            int gray = (int) (0.3*r+0.59*g+0.11*b);
-            pixelMap[p] = Color.rgb(gray,gray,gray);
-
-
-        }
-        this.bmp.setPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-    }
-
-
-    /**
      * Change the ImageView's Bitmap in sepia using RenderScript
      */
     public void toSepiaRS(Bitmap bmp, Context context) {
@@ -231,42 +203,6 @@ public class FilteredImage {
         rs.destroy();
     }
 
-    /**
-     * Change the ImageView's Bitmap in sepia
-     */
-    public void sepia(){
-        int[] pixelMap = new int[this.width *this.height];
-        int[] finalPixelMap = new int[this.width *this.height];
-        this.bmp.getPixels(pixelMap, 0, this.width, 0,0, this.width, this.height);
-
-        for (int p=0; p< pixelMap.length; p++) {
-            int red = red(pixelMap[p]);
-            int green = green(pixelMap[p]);
-            int blue = blue(pixelMap[p]);
-            int tRed = (int) (0.393*red + 0.769*green + 0.189*blue);
-            int tGreen = (int) (0.349*red + 0.686*green + 0.168*blue);
-            int tBlue = (int) (0.272*red + 0.534*green + 0.131*blue);
-
-            if (tRed > 255) {
-                tRed = 255;
-            } else if (tRed < 0) {
-                tRed = 0;
-            }
-            if (tGreen > 255) {
-                tGreen = 255;
-            } else if (tGreen < 0) {
-                tGreen = 0;
-            }
-            if (tBlue > 255) {
-                tBlue = 255;
-            } else if (tBlue < 0) {
-                tBlue = 0;
-            }
-            finalPixelMap[p] = Color.rgb( tRed,tGreen,tBlue);
-        }
-        this.bmp.setPixels(finalPixelMap, 0, this.width, 0,0, this.width, this.height);
-
-    }
 
     /**
      *
@@ -351,6 +287,7 @@ public class FilteredImage {
         this.bmp = bmp2;
     }
 
+    /** Apply a square matrix one a pixel**/
     public double[] convolution(int n, float[][] masque, int[] pixelMap, int p, int width){
 
         double red, green, blue;
@@ -416,6 +353,7 @@ public class FilteredImage {
         }
         return largerPixelMap;
     }
+
 
     public void averageConvolution(int n){
         int size = 2*n+1;

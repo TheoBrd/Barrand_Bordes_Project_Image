@@ -3,14 +3,12 @@ package com.example.tbarrand001.bordes_barrand_image;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -51,10 +49,6 @@ public class MainActivity extends AppCompatActivity {
     private static int RESULT_POPUP_GAUSSIAN = 4;
     private static int RESULT_POPUP_AVERAGE = 5;
     private static final int RESULT_CAMERA_REQUEST = 6;
-
-
-    private int test = -1;
-
 
     private int valueSKB;
     private boolean firstClick;
@@ -160,6 +154,9 @@ public class MainActivity extends AppCompatActivity {
         final TextView valuePrintG = (TextView) findViewById(R.id.seekbarValueG);
         this.valueSKB = skb.getProgress();
         valuePrintG.setText(String.valueOf(this.valueSKB));
+
+        /** Create a button Compare which permits to compare the new image with the original one
+         *  When the user is clicking on this button, the original image replace the current one **/
         this.compare = (Button)findViewById(R.id.compareBut);
         this.compare.setOnTouchListener(new View.OnTouchListener() {
             @Override

@@ -163,11 +163,12 @@ public class ColorCube {
 
 
     public void clustering(int nbColor){
-        //ce tableau contient la liste de point centraux
+
+        // tabCenterCluster contains the center points
         int[] tabCenterCluster = new int [nbColor];
         int iter=0;
 
-        //cette liste contient les différents clusters
+        // The list cluster contains the different clusters
         ArrayList<ArrayList<Integer>> cluster = new ArrayList<ArrayList<Integer>>();
         ArrayList<double[]> pixelMapLab = new ArrayList();
         for (int pixel :pixelMap) {
@@ -177,8 +178,7 @@ public class ColorCube {
         }
 
 
-
-        //création des points aléatoirement
+        // Generate randomly the points
         for(int i =0; i<tabCenterCluster.length; i++){
             Random rand = new Random();
 
@@ -203,9 +203,8 @@ public class ColorCube {
             }
 
 
-
-            //pour chaque pixel, je regarde sa distance avec les points, et garde la plus petite
-            //avant de ranger le pixel dans le cluster conrrespondant
+            // Keep the shortest distance between each pixel and the points
+            // Then, put the pixel in the corresponding cluster
             iter =0;
             for( double[] pixel : pixelMapLab){
                 int numClust=0;
